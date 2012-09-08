@@ -95,8 +95,10 @@ void MainWindow::on_actionAdd_Shred_triggered()
     char buffer[OUTPUT_BUFFER_SIZE];
     osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
 
+#ifdef WIN32
     //truncate the drive specifier from string
     QString fileName = v.toString().split(':').at(1);
+#endif
 
     p << osc::BeginMessage( "/shred/new" ) <<
             fileName.toAscii().constData() << osc::EndMessage;
