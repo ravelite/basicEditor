@@ -6,3 +6,4 @@
 /Makefile.Release
 *.pdb
 *.user
+/ui_mainwindow.h

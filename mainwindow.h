@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "UnResponseListener.h"
 #include <QMdiArea>
+#include <QStackedWidget>
 
 namespace Ui {
 class MainWindow;
@@ -19,7 +20,6 @@ public:
     
 private slots:
     void on_actionOpen_triggered();
-
     void on_actionAdd_Shred_triggered();
 
 private:
@@ -30,6 +30,11 @@ private:
     UdpTransmitSocket outSocket;
 
     QMdiArea *mdiArea;
+    QWidget *shredTree;
+
+    //a sequence number for the OSC requests
+    int seqRequest;
+    int nBuffers;
 };
 
 #endif // MAINWINDOW_H
