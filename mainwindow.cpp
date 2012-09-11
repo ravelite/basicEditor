@@ -106,7 +106,7 @@ void MainWindow::on_actionOpen_triggered()
 
     QFileInfo fileInfo( fileName );
 
-    QPlainTextEdit *textEdit = new QPlainTextEdit(fileText, mdiArea);
+    QPlainTextEdit *textEdit = new QPlainTextEdit(fileText,mdiArea);
     textEdit->setProperty( "fileName", fileName );
     QMdiSubWindow *subWindow = mdiArea->addSubWindow( textEdit );
     subWindow->showMaximized();
@@ -144,11 +144,19 @@ void MainWindow::on_actionOpen_triggered()
     ui->mainToolBar->addWidget( widget );
     */
 
-    QPushButton *b1 = new QPushButton( fileInfo.baseName());
+    QPushButton *b1 = new QPushButton( fileInfo.baseName() );
     b1->setMaximumHeight( 40 );
     QGridLayout *gridL = (QGridLayout *)shredTree->layout();
     gridL->addWidget(b1,++nBuffers,0, Qt::AlignLeft|Qt::AlignTop);
     gridL->setRowStretch(nBuffers, 0);
+
+    //connect this to focus changes in mdiArea
+    connect( subWindow, SIGNAL(aboutToActivate()),
+             b1, SLOT(animateClick()) );
+
+    //also connect buttons to activate subwindows
+    connect( b1, SIGNAL(clicked()),
+             subWindow, SLOT(setFocus()));
 
     //add a widget to take up the rest of the space
     QWidget *spacer = new QWidget();
