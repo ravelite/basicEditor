@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     ../oscpack/osc/OscReceivedElements.cpp \
     ../oscpack/osc/OscPrintReceivedElements.cpp \
     ../oscpack/osc/OscOutboundPacketStream.cpp \
-    UnResponseListener.cpp
+    UnResponseListener.cpp \
+    codeedit.cpp
 
 HEADERS  += mainwindow.h \
     ../oscpack/ip/UdpSocket.h \
@@ -36,7 +37,8 @@ HEADERS  += mainwindow.h \
     ../oscpack/osc/OscHostEndianness.h \
     ../oscpack/osc/OscException.h \
     ../oscpack/osc/MessageMappingOscPacketListener.h \
-    UnResponseListener.h
+    UnResponseListener.h \
+    codeedit.h
 
 FORMS    += mainwindow.ui
 

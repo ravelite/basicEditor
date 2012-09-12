@@ -17,6 +17,9 @@
 #include <QScrollArea>
 
 #include <QHBoxLayout>
+#include <QTextEdit>
+
+#include "codeedit.h"
 
 #include <iostream>
 
@@ -106,7 +109,14 @@ void MainWindow::on_actionOpen_triggered()
 
     QFileInfo fileInfo( fileName );
 
-    QPlainTextEdit *textEdit = new QPlainTextEdit(fileText,mdiArea);
+    QFont fixedFont("Courier", 10);
+
+    //QPlainTextEdit *textEdit = new QPlainTextEdit(fileText,mdiArea);
+    //QTextEdit *textEdit = new QTextEdit(fileText,mdiArea);
+    CodeEdit *textEdit = new CodeEdit(mdiArea);
+    textEdit->setPlainText( fileText );
+    textEdit->setFont( fixedFont );
+
     textEdit->setProperty( "fileName", fileName );
     QMdiSubWindow *subWindow = mdiArea->addSubWindow( textEdit );
     subWindow->showMaximized();
@@ -167,7 +177,7 @@ void MainWindow::on_actionOpen_triggered()
 void MainWindow::on_actionAdd_Shred_triggered()
 {
     //get the text from the active buffer (but also the filename)
-    QPlainTextEdit *textEdit = (QPlainTextEdit *) mdiArea->focusWidget();
+    CodeEdit *textEdit = (CodeEdit *) mdiArea->focusWidget();
     QVariant v = textEdit->property("fileName");
 
     //and send a message to the compiler
