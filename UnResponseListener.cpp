@@ -9,6 +9,9 @@
 void UnResponseListener::ProcessMessage( const osc::ReceivedMessage& m,
                                          const IpEndpointName& remoteEndpoint )
 {
+    /* challenge: receiving the /shred/new message here and checking it
+      against the revision db */
+
     try{
         if ( strcmp( m.AddressPattern(), "/hello" )==0 ) {
 

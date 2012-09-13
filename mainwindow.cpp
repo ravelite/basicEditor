@@ -95,32 +95,30 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionOpen_triggered()
 {
-    QString fileName = QFileDialog::getOpenFileName(this,
+    QString filePath = QFileDialog::getOpenFileName(this,
         tr("Open File"), "", tr("Chuck Files (*.ck)"));
 
-    if ( fileName.isNull() ) return;
+    if ( filePath.isNull() ) return;
 
-    QFile textFile(fileName);
+    QFile textFile(filePath);
     if (!textFile.open(QIODevice::ReadOnly | QIODevice::Text))
          return;
 
     QTextStream stream( &textFile );
     QString fileText = stream.readAll();
 
-    QFileInfo fileInfo( fileName );
+    QFileInfo fileInfo( filePath );
 
     QFont fixedFont("Courier", 10);
 
-    //QPlainTextEdit *textEdit = new QPlainTextEdit(fileText,mdiArea);
-    //QTextEdit *textEdit = new QTextEdit(fileText,mdiArea);
     CodeEdit *textEdit = new CodeEdit(mdiArea);
     textEdit->setPlainText( fileText );
     textEdit->setFont( fixedFont );
 
-    textEdit->setProperty( "fileName", fileName );
+    textEdit->setProperty( "filePath", filePath );
     QMdiSubWindow *subWindow = mdiArea->addSubWindow( textEdit );
     subWindow->showMaximized();
-    subWindow->setWindowTitle( fileInfo.baseName() );
+    subWindow->setWindowTitle( fileInfo.fileName() );
 
     //try adding something to the toolbar
     //ui->mainToolBar->addAction( fileInfo.baseName() );
@@ -154,7 +152,7 @@ void MainWindow::on_actionOpen_triggered()
     ui->mainToolBar->addWidget( widget );
     */
 
-    QPushButton *b1 = new QPushButton( fileInfo.baseName() );
+    QPushButton *b1 = new QPushButton( fileInfo.fileName() );
     b1->setMaximumHeight( 40 );
     QGridLayout *gridL = (QGridLayout *)shredTree->layout();
     gridL->addWidget(b1,++nBuffers,0, Qt::AlignLeft|Qt::AlignTop);
@@ -178,20 +176,23 @@ void MainWindow::on_actionAdd_Shred_triggered()
 {
     //get the text from the active buffer (but also the filename)
     CodeEdit *textEdit = (CodeEdit *) mdiArea->focusWidget();
-    QVariant v = textEdit->property("fileName");
+    QVariant v = textEdit->property("filePath");
 
     //and send a message to the compiler
     char buffer[OUTPUT_BUFFER_SIZE];
     osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
 
+
+    QString fileName = QFileInfo(v.toString()).fileName();
 #ifdef WIN32
     //truncate the drive specifier from string
-    QString fileName = v.toString().split(':').at(1);
+    QString filePath = v.toString().split(':').at(1);
 #endif
 
     p << osc::BeginMessage( "/shred/new" ) <<
-            fileName.toAscii().constData() <<
-            ++seqRequest << osc::EndMessage;
+            filePath.toAscii().constData() <<
+    //        ++seqRequest << osc::EndMessage;
+         (int) qHash(fileName) << osc::EndMessage;
 
     outSocket.Send( p.Data(), p.Size() );
 }
