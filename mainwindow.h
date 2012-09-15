@@ -6,6 +6,8 @@
 #include <QMdiArea>
 #include <QStackedWidget>
 
+#include <QUdpSocket>
+
 namespace Ui {
 class MainWindow;
 }
@@ -22,10 +24,15 @@ private slots:
     void on_actionOpen_triggered();
     void on_actionAdd_Shred_triggered();
 
+    void readPendingDatagrams();
+
 private:
     Ui::MainWindow *ui;
 
     UnResponseListener listener;
+    //QQueue udpQueue;
+    //QMutex udpQueueMutex;
+
     UdpListeningReceiveSocket *inSocket;
     UdpTransmitSocket outSocket;
 
@@ -35,6 +42,8 @@ private:
     //a sequence number for the OSC requests
     int seqRequest;
     int nBuffers;
+
+    QUdpSocket *udpSocket;
 };
 
 #endif // MAINWINDOW_H

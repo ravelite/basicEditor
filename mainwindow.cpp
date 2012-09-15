@@ -31,10 +31,10 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    listener(),
+    //listener(),
     //open up a receiving port
-    inSocket( new UdpListeningReceiveSocket( IpEndpointName( IpEndpointName::ANY_ADDRESS, PORT_RECV ),
-              &listener )),
+    //inSocket( new UdpListeningReceiveSocket( IpEndpointName( IpEndpointName::ANY_ADDRESS, PORT_RECV ),
+    //          &listener )),
     outSocket( IpEndpointName( ADDRESS, PORT_SEND )),
     mdiArea( new QMdiArea(this) ),
     seqRequest( 0 ), nBuffers( 0 )
@@ -72,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent) :
     addDockWidget( Qt::RightDockWidgetArea, dock );
 
     //set up the recieving socket
-    QtConcurrent::run( inSocket, &UdpListeningReceiveSocket::RunUntilSigInt );
+    //QtConcurrent::run( inSocket, &UdpListeningReceiveSocket::RunUntilSigInt );
 
     //and send a test/wakeup message
     char buffer[OUTPUT_BUFFER_SIZE];
@@ -82,15 +82,24 @@ MainWindow::MainWindow(QWidget *parent) :
             "unaudicle is awake" << osc::EndMessage;
 
     outSocket.Send( p.Data(), p.Size() );
+
+    //
+    udpSocket = new QUdpSocket(this);
+    udpSocket->bind(QHostAddress::LocalHost, PORT_RECV);
+
+    connect(udpSocket, SIGNAL(readyRead()),
+            this, SLOT(readPendingDatagrams()));
 }
 
 MainWindow::~MainWindow()
 {
-    inSocket->AsynchronousBreak();
-    delete inSocket;
+    //inSocket->AsynchronousBreak();
+    //delete inSocket;
 
     delete ui;
     delete mdiArea;
+
+    delete udpSocket;
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -195,4 +204,47 @@ void MainWindow::on_actionAdd_Shred_triggered()
          (int) qHash(fileName) << osc::EndMessage;
 
     outSocket.Send( p.Data(), p.Size() );
+}
+
+void MainWindow::readPendingDatagrams()
+{
+    while (udpSocket->hasPendingDatagrams()) {
+        QByteArray datagram;
+        datagram.resize(udpSocket->pendingDatagramSize());
+        QHostAddress sender;
+        quint16 senderPort;
+
+        udpSocket->readDatagram(datagram.data(), datagram.size(),
+                                &sender, &senderPort);
+
+        //process the datagram
+        osc::ReceivedMessage m( osc::ReceivedPacket( datagram.data(), datagram.size()));
+
+        try{
+            if ( strcmp( m.AddressPattern(), "/hello" )==0 ) {
+
+                //ignore the arguments, print some message
+                std::cout << "got /hello message!" << std::endl;
+
+            } else if ( strcmp( m.AddressPattern(), "/shred/new") ==0 ) {
+
+                osc::int32 edShrid;
+                osc::int32 shrid;
+                m.ArgumentStream() >> edShrid >> shrid >> osc::EndMessage;
+
+                std::cout << "/shred/new," << edShrid << "," << shrid << std::endl;
+
+            } else { //any other message
+
+                std::cout << "got message at " << m.AddressPattern() << std::endl;
+
+            }
+
+        }catch( osc::Exception& e ){
+            // any parsing errors such as unexpected argument types, or
+            // missing arguments get thrown as exceptions.
+            std::cout << "error while parsing message: "
+                      << m.AddressPattern() << ": " << e.what() << "\n";
+        }
+    }
 }
