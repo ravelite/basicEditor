@@ -234,6 +234,63 @@ void MainWindow::readPendingDatagrams()
 
                 std::cout << "/shred/new," << edShrid << "," << shrid << std::endl;
 
+                QGridLayout *gridL = (QGridLayout *)shredTree->layout();
+
+                //try all of the button/filenames to find something to associate
+                /* for (int i=0; i<nBuffers; i++) {
+                    QPushButton *b = (QPushButton *)gridL->itemAtPosition(i,0);
+                    QString fileName = b->text();
+                    if ( qHash(fileName)==edShrid ) {
+                        std::cout << "found a match" << std::endl;
+                    }
+                } */
+
+                /*
+                QObjectList children = shredTree->children();
+                for (int i=0; i<children.length(); i++) {
+
+                    QObject *curr = children.at(i);
+                    if ( !curr->isWidgetType() ) break;
+
+                    QPushButton *b = qobject_cast<QPushButton *>(curr);
+
+                    if ( b!=NULL ) {
+
+                        QString fileName = b->text();
+                        if ( qHash(fileName)==edShrid ) {
+                            std::cout << "found a match" << std::endl;
+                        }
+                    }
+                }*/
+                for (int i=0; i<gridL->count(); i++) {
+                    QWidget *w = gridL->itemAt(i)->widget();
+
+                    if ( w != NULL ) {
+
+                        QPushButton *b = qobject_cast<QPushButton *>(w);
+
+                        if ( b!=NULL ) {
+
+                            QString fileName = b->text();
+                            if ( qHash(fileName)==edShrid ) {
+                                std::cout << "found a match" << std::endl;
+
+                                int row, column, rowSpan, columnSpan;
+                                gridL->getItemPosition( i, &row, &column, &rowSpan, &columnSpan );
+
+                                //add a shred button at the next open position
+                                int col = 1;
+                                while( gridL->itemAtPosition(row,col) != 0 )
+                                    col++;
+
+                                QPushButton *bS = new QPushButton( QString::number(shrid) );
+                                gridL->addWidget( bS, row, col, 1, 1 );
+                            }
+                        }
+                    }
+                }
+
+
             } else { //any other message
 
                 std::cout << "got message at " << m.AddressPattern() << std::endl;
