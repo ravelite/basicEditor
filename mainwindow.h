@@ -26,6 +26,8 @@ private slots:
 
     void readPendingDatagrams();
 
+    void killShred();
+
 private:
     Ui::MainWindow *ui;
 

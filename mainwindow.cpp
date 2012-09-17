@@ -129,38 +129,6 @@ void MainWindow::on_actionOpen_triggered()
     subWindow->showMaximized();
     subWindow->setWindowTitle( fileInfo.fileName() );
 
-    //try adding something to the toolbar
-    //ui->mainToolBar->addAction( fileInfo.baseName() );
-    //ui->mainToolBar->addWidget( new QPushButton("Hello") );
-
-    /*
-    //QHBoxLayout *box = new QHBoxLayout();
-    QGridLayout *grid = new QGridLayout();
-    grid->setSpacing(0);
-    QWidget *widget = new QWidget();
-    QPushButton *b1 = new QPushButton( "1" );
-    QPushButton *b2 = new QPushButton( "2" );
-    QPushButton *b3 = new QPushButton( "3" );
-    QPushButton *b4 = new QPushButton( "4" );
-    QPushButton *b5 = new QPushButton( "5" );
-    b1->setMaximumWidth(20);
-    b2->setMaximumWidth(20);
-    b3->setMaximumWidth(20);
-    b4->setMaximumWidth(20);
-    b5->setMaximumWidth(20);
-
-    grid->addWidget( new QPushButton( fileInfo.baseName()), 0, 0 );
-    grid->addWidget( b1, 0, 1 );
-    grid->addWidget( b2, 0, 2 );
-    grid->addWidget( b3, 0, 3 );
-    grid->addWidget( b4, 0, 4 );
-    grid->addWidget( b5, 0, 5 );
-    widget->setLayout( grid );
-    widget->setMaximumHeight( 60 );
-
-    ui->mainToolBar->addWidget( widget );
-    */
-
     QPushButton *b1 = new QPushButton( fileInfo.fileName() );
     b1->setMaximumHeight( 40 );
     QGridLayout *gridL = (QGridLayout *)shredTree->layout();
@@ -284,11 +252,42 @@ void MainWindow::readPendingDatagrams()
                                     col++;
 
                                 QPushButton *bS = new QPushButton( QString::number(shrid) );
+                                bS->setMaximumWidth( 20 );
                                 gridL->addWidget( bS, row, col, 1, 1 );
+
+                                connect( bS, SIGNAL(clicked()),
+                                         this, SLOT(killShred()));
                             }
                         }
                     }
-                }
+                } //for all buttons in the grid
+
+            } else if ( strcmp( m.AddressPattern(), "/shred/remove") ==0 ) {
+
+                osc::int32 shrid;
+                m.ArgumentStream() >> shrid >> osc::EndMessage;
+
+                std::cout << "/shred/remove," << shrid << std::endl;
+
+                QGridLayout *gridL = (QGridLayout *)shredTree->layout();
+
+                for (int i=0; i<gridL->count(); i++) {
+                    QWidget *w = gridL->itemAt(i)->widget();
+                    QPushButton *b = qobject_cast<QPushButton *>(w);
+
+                    if ( b==NULL ) continue;
+
+                    int buttonShrid = b->text().toInt();
+
+                    if ( shrid == buttonShrid ) {
+                        gridL->removeWidget(b);
+                        delete b;
+
+                        gridL->invalidate();
+                        //gridL->layout();
+                    }
+
+                } //for all buttons in the grid
 
 
             } else { //any other message
@@ -304,4 +303,19 @@ void MainWindow::readPendingDatagrams()
                       << m.AddressPattern() << ": " << e.what() << "\n";
         }
     }
+}
+
+void MainWindow::killShred()
+{
+    QPushButton *b1 = (QPushButton *) QObject::sender();
+    osc::int32 shrid = b1->text().toInt();
+
+    char buffer[OUTPUT_BUFFER_SIZE];
+    osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
+
+    p << osc::BeginMessage( "/shred/remove" ) <<
+            shrid << osc::EndMessage;
+
+    outSocket.Send( p.Data(), p.Size() );
+
 }
