@@ -23,17 +23,15 @@ public:
 private slots:
     void on_actionOpen_triggered();
     void on_actionAdd_Shred_triggered();
-
     void readPendingDatagrams();
-
     void killShred();
+    void on_actionSave_triggered();
+    void onTextChanged();
 
 private:
     Ui::MainWindow *ui;
 
     UnResponseListener listener;
-    //QQueue udpQueue;
-    //QMutex udpQueueMutex;
 
     UdpListeningReceiveSocket *inSocket;
     UdpTransmitSocket outSocket;

@@ -125,6 +125,9 @@ void MainWindow::on_actionOpen_triggered()
     textEdit->setFont( fixedFont );
 
     textEdit->setProperty( "filePath", filePath );
+    textEdit->setProperty( "fileName", fileInfo.fileName() );
+    textEdit->setProperty( "textChanged", false );
+
     QMdiSubWindow *subWindow = mdiArea->addSubWindow( textEdit );
     subWindow->showMaximized();
     subWindow->setWindowTitle( fileInfo.fileName() );
@@ -142,6 +145,9 @@ void MainWindow::on_actionOpen_triggered()
     //also connect buttons to activate subwindows
     connect( b1, SIGNAL(clicked()),
              subWindow, SLOT(setFocus()));
+
+    connect( textEdit, SIGNAL(textChanged()),
+             this, SLOT(onTextChanged()) );
 
     //add a widget to take up the rest of the space
     QWidget *spacer = new QWidget();
@@ -318,4 +324,38 @@ void MainWindow::killShred()
 
     outSocket.Send( p.Data(), p.Size() );
 
+}
+
+void MainWindow::on_actionSave_triggered()
+{
+    QMdiSubWindow *sub = mdiArea->currentSubWindow();
+
+    if ( sub==NULL ) return;
+
+    CodeEdit *edit = (CodeEdit *) sub->widget();
+
+    QFile file( edit->property("filePath").toString() );
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        return;
+
+    QTextStream outStream(&file);
+
+    outStream << edit->toPlainText();
+
+    file.close();
+
+    edit->setProperty("textChanged", false);
+    sub->setWindowTitle( edit->property("fileName").toString() );
+}
+
+void MainWindow::onTextChanged()
+{
+    CodeEdit *edit = (CodeEdit *) QObject::sender();
+    QMdiSubWindow *sub = (QMdiSubWindow *)edit->parent();
+
+    if ( !edit->property("textChanged").toBool() ) {
+
+        edit->setProperty("textChanged", true);
+        sub->setWindowTitle( edit->property("fileName").toString() + "*" );
+    }
 }
