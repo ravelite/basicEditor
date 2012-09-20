@@ -127,6 +127,10 @@ void MainWindow::on_actionOpen_triggered()
     textEdit->setProperty( "filePath", filePath );
     textEdit->setProperty( "fileName", fileInfo.fileName() );
     textEdit->setProperty( "textChanged", false );
+    textEdit->setProperty( "revision", 0 );
+    textEdit->setProperty( "hasShredded", false );
+
+    maxShredRevision[ filePath ] = 0;
 
     QMdiSubWindow *subWindow = mdiArea->addSubWindow( textEdit );
     subWindow->showMaximized();
@@ -268,6 +272,21 @@ void MainWindow::readPendingDatagrams()
                     }
                 } //for all buttons in the grid
 
+                QList<QMdiSubWindow *> windowList = mdiArea->subWindowList();
+                QList<QMdiSubWindow *>::iterator i;
+                for (i = windowList.begin(); i != windowList.end(); ++i) {
+
+                    CodeEdit *edit = (CodeEdit *) (*i)->widget();
+                    QString fileName = edit->property("fileName").toString();
+                    if ( qHash(fileName)==edShrid ) {
+
+                        edit->setProperty( "hasShredded", true );
+
+                        break;
+                    }
+
+                }
+
             } else if ( strcmp( m.AddressPattern(), "/shred/remove") ==0 ) {
 
                 osc::int32 shrid;
@@ -358,4 +377,52 @@ void MainWindow::onTextChanged()
         edit->setProperty("textChanged", true);
         sub->setWindowTitle( edit->property("fileName").toString() + "*" );
     }
+
+    //if hasShredded and text changed (now!) make a new revision
+    if ( edit->property("hasShredded").toBool() ){
+
+        QString filePath = edit->property("filePath").toString();
+
+        QFileInfo fileInfo( filePath );
+        QFont fixedFont("Courier", 10);
+
+        CodeEdit *edit2 = new CodeEdit(mdiArea);
+        edit2->setPlainText( edit->toPlainText() );
+        edit2->setFont( fixedFont );
+
+        edit2->setProperty( "filePath", filePath );
+        edit2->setProperty( "fileName", fileInfo.fileName() );
+        edit2->setProperty( "textChanged", false );
+        edit2->setProperty( "revision", ++maxShredRevision[ filePath ] );
+        edit2->setProperty( "hasShredded", false );
+
+        maxShredRevision[ filePath ] = 0;
+
+        QMdiSubWindow *subWindow = mdiArea->addSubWindow( edit2 );
+        subWindow->showMaximized();
+        subWindow->setWindowTitle( fileInfo.fileName() );
+
+        QPushButton *b1 = new QPushButton( fileInfo.fileName() );
+        b1->setMaximumHeight( 40 );
+        QGridLayout *gridL = (QGridLayout *)shredTree->layout();
+        gridL->addWidget(b1,++nBuffers,0, Qt::AlignLeft|Qt::AlignTop);
+        gridL->setRowStretch(nBuffers, 0);
+
+        //connect this to focus changes in mdiArea
+        connect( subWindow, SIGNAL(aboutToActivate()),
+                 b1, SLOT(animateClick()) );
+
+        //also connect buttons to activate subwindows
+        connect( b1, SIGNAL(clicked()),
+                 subWindow, SLOT(setFocus()));
+
+        connect( edit2, SIGNAL(textChanged()),
+                 this, SLOT(onTextChanged()) );
+
+        //add a widget to take up the rest of the space
+        QWidget *spacer = new QWidget();
+        gridL->addWidget(spacer,nBuffers+1,0,-1,0);
+        gridL->setRowStretch(nBuffers+1, 1000);
+    }
+
 }

@@ -7,6 +7,7 @@
 #include <QStackedWidget>
 
 #include <QUdpSocket>
+#include <QMap>
 
 namespace Ui {
 class MainWindow;
@@ -44,6 +45,8 @@ private:
     int nBuffers;
 
     QUdpSocket *udpSocket;
+
+    QMap<QString, int> maxShredRevision;
 };
 
 #endif // MAINWINDOW_H
