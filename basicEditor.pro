@@ -20,7 +20,6 @@ SOURCES += main.cpp\
     ../oscpack/osc/OscReceivedElements.cpp \
     ../oscpack/osc/OscPrintReceivedElements.cpp \
     ../oscpack/osc/OscOutboundPacketStream.cpp \
-    UnResponseListener.cpp \
     codeedit.cpp \
     revision.cpp
 
@@ -38,7 +37,6 @@ HEADERS  += mainwindow.h \
     ../oscpack/osc/OscHostEndianness.h \
     ../oscpack/osc/OscException.h \
     ../oscpack/osc/MessageMappingOscPacketListener.h \
-    UnResponseListener.h \
     codeedit.h \
     revision.h
 

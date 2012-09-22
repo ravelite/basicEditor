@@ -2,10 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "UnResponseListener.h"
 #include <QMdiArea>
-#include <QStackedWidget>
-
 #include <QUdpSocket>
 #include <QMap>
 
@@ -20,7 +17,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    
+
 private slots:
     void on_actionOpen_triggered();
     void on_actionAdd_Shred_triggered();
@@ -32,21 +29,21 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
-    UnResponseListener listener;
-
-    UdpListeningReceiveSocket *inSocket;
-    UdpTransmitSocket outSocket;
-
+    QUdpSocket *outSocket;
     QMdiArea *mdiArea;
     QWidget *shredTree;
+    QUdpSocket *udpSocket;
+    QMap<QString, int> maxShredRevision;
+    QString sessionName;
 
     //a sequence number for the OSC requests
     int seqRequest;
     int nBuffers;
 
-    QUdpSocket *udpSocket;
-
-    QMap<QString, int> maxShredRevision;
+    //functions
+    void sendTestMessage();
+    void shredFile(QString filePath, int revID);
+    bool saveFile(QString filePath, QString textContent);
 };
 
 #endif // MAINWINDOW_H

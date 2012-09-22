@@ -5,13 +5,13 @@
 CodeEdit::CodeEdit(QWidget *parent) :
     QTextEdit(parent)
 {
+    QFont fixedFont("Courier", 10);
+    setFont( fixedFont );
 
 }
 
 void CodeEdit::wheelEvent(QWheelEvent *ev)
 {
-    ev->accept();
-
     if ( ev->modifiers() & Qt::ControlModifier ) {
 
         ev->accept();
@@ -19,9 +19,10 @@ void CodeEdit::wheelEvent(QWheelEvent *ev)
             zoomIn( 1 );
         else if ( ev->delta() < 0 )
             zoomOut( 1 );
+
+        ensureCursorVisible();
     }
     else
-        ev->ignore();
+        QTextEdit::wheelEvent(ev);
 
-    QTextEdit::wheelEvent(ev);
 }

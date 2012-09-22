@@ -3,11 +3,15 @@
 
 #include <QTextEdit>
 
+#include "revision.h"
+
 class CodeEdit : public QTextEdit
 {
     Q_OBJECT
 public:
-    explicit CodeEdit(QWidget *parent = 0);
+    CodeEdit(QWidget *parent = 0);
+
+    Revision *rev;
 
 protected:
     void wheelEvent(QWheelEvent *e);

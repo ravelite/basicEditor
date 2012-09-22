@@ -4,20 +4,19 @@
 #include "osc/OscOutboundPacketStream.h"
 #include "osc/OscReceivedElements.h"
 #include "osc/OscPacketListener.h"
-#include "ip/UdpSocket.h"
 
-#include <QtConcurrentRun>
 #include <QMdiArea>
 #include <QFileDialog>
-#include <QPlainTextEdit>
 #include <QMdiSubWindow>
 #include <QPushButton>
 #include <QAction>
 #include <QDockWidget>
 #include <QScrollArea>
+#include <QGridLayout>
 
-#include <QHBoxLayout>
 #include <QTextEdit>
+
+#include <QDateTime>
 
 #include "codeedit.h"
 
@@ -31,19 +30,12 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    //listener(),
-    //open up a receiving port
-    //inSocket( new UdpListeningReceiveSocket( IpEndpointName( IpEndpointName::ANY_ADDRESS, PORT_RECV ),
-    //          &listener )),
-    outSocket( IpEndpointName( ADDRESS, PORT_SEND )),
+    outSocket( new QUdpSocket(this) ),
+    udpSocket( new QUdpSocket(this) ),
     mdiArea( new QMdiArea(this) ),
     seqRequest( 0 ), nBuffers( 0 )
 {
     ui->setupUi(this);
-
-    //mdiArea->setViewMode(QMdiArea::TabbedView);
-    //mdiArea->setTabPosition(QTabWidget::East);
-    //mdiArea->setTabShape(QTabWidget::Triangular);
 
     QAction *leftAction = new QAction(mdiArea);
     leftAction->setShortcut( tr("Alt+Left") );
@@ -71,8 +63,33 @@ MainWindow::MainWindow(QWidget *parent) :
     dock->setWidget( shredTree );
     addDockWidget( Qt::RightDockWidgetArea, dock );
 
-    //set up the recieving socket
-    //QtConcurrent::run( inSocket, &UdpListeningReceiveSocket::RunUntilSigInt );
+    udpSocket->bind(QHostAddress::LocalHost, PORT_RECV);
+
+    connect(udpSocket, SIGNAL(readyRead()),
+            this, SLOT(readPendingDatagrams()));
+
+    sendTestMessage();
+
+    //create a session directory
+    QDir dir;
+    sessionName =
+       "session" + QDateTime::currentDateTime().toString( Qt::ISODate ).replace(':','.');
+    if ( !dir.mkdir( sessionName ) )
+    {
+        std::cerr << "Problems creating session directory." << std::endl;
+    }
+
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+    delete mdiArea;
+    delete udpSocket;
+    delete outSocket;
+}
+
+void MainWindow::sendTestMessage() {
 
     //and send a test/wakeup message
     char buffer[OUTPUT_BUFFER_SIZE];
@@ -81,25 +98,7 @@ MainWindow::MainWindow(QWidget *parent) :
     p << osc::BeginMessage( "/hello" ) <<
             "unaudicle is awake" << osc::EndMessage;
 
-    outSocket.Send( p.Data(), p.Size() );
-
-    //
-    udpSocket = new QUdpSocket(this);
-    udpSocket->bind(QHostAddress::LocalHost, PORT_RECV);
-
-    connect(udpSocket, SIGNAL(readyRead()),
-            this, SLOT(readPendingDatagrams()));
-}
-
-MainWindow::~MainWindow()
-{
-    //inSocket->AsynchronousBreak();
-    //delete inSocket;
-
-    delete ui;
-    delete mdiArea;
-
-    delete udpSocket;
+    outSocket->writeDatagram( p.Data(), p.Size(), QHostAddress::LocalHost, PORT_SEND );
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -118,26 +117,21 @@ void MainWindow::on_actionOpen_triggered()
 
     QFileInfo fileInfo( filePath );
 
-    QFont fixedFont("Courier", 10);
+    CodeEdit *edit = new CodeEdit(mdiArea);
+    edit->setPlainText( fileText );
 
-    CodeEdit *textEdit = new CodeEdit(mdiArea);
-    textEdit->setPlainText( fileText );
-    textEdit->setFont( fixedFont );
-
-    textEdit->setProperty( "filePath", filePath );
-    textEdit->setProperty( "fileName", fileInfo.fileName() );
-    textEdit->setProperty( "textChanged", false );
-    textEdit->setProperty( "revision", 0 );
-    textEdit->setProperty( "hasShredded", false );
+    edit->rev = new Revision( filePath );
 
     maxShredRevision[ filePath ] = 0;
 
-    QMdiSubWindow *subWindow = mdiArea->addSubWindow( textEdit );
+    QMdiSubWindow *subWindow = mdiArea->addSubWindow( edit );
     subWindow->showMaximized();
     subWindow->setWindowTitle( fileInfo.fileName() );
 
     QPushButton *b1 = new QPushButton( fileInfo.fileName() );
     b1->setMaximumHeight( 40 );
+    b1->setProperty( "revID", edit->rev->getID() );
+
     QGridLayout *gridL = (QGridLayout *)shredTree->layout();
     gridL->addWidget(b1,++nBuffers,0, Qt::AlignLeft|Qt::AlignTop);
     gridL->setRowStretch(nBuffers, 0);
@@ -150,7 +144,7 @@ void MainWindow::on_actionOpen_triggered()
     connect( b1, SIGNAL(clicked()),
              subWindow, SLOT(setFocus()));
 
-    connect( textEdit, SIGNAL(textChanged()),
+    connect( edit, SIGNAL(textChanged()),
              this, SLOT(onTextChanged()) );
 
     //add a widget to take up the rest of the space
@@ -159,29 +153,62 @@ void MainWindow::on_actionOpen_triggered()
     gridL->setRowStretch(nBuffers+1, 1000);
 }
 
-void MainWindow::on_actionAdd_Shred_triggered()
+bool MainWindow::saveFile(QString filePath, QString textContent)
 {
-    //get the text from the active buffer (but also the filename)
-    CodeEdit *textEdit = (CodeEdit *) mdiArea->focusWidget();
-    QVariant v = textEdit->property("filePath");
+    QFile file( filePath );
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        return false;
 
-    //and send a message to the compiler
+    QTextStream outStream(&file);
+    outStream << textContent;
+
+    file.close();
+
+    return true;
+}
+
+void MainWindow::shredFile(QString filePath, int revID) {
+
     char buffer[OUTPUT_BUFFER_SIZE];
     osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
 
+    //for now, just use the source file path for hash
+    p << osc::BeginMessage( "/shred/new" ) <<
+         filePath.toAscii().constData() <<
+         revID << osc::EndMessage;
 
-    QString fileName = QFileInfo(v.toString()).fileName();
+    outSocket->writeDatagram( p.Data(), p.Size(), QHostAddress::LocalHost, PORT_SEND );
+}
+
+void MainWindow::on_actionAdd_Shred_triggered()
+{
+    //get the text from the active buffer (but also the filename)
+    CodeEdit *edit = (CodeEdit *) mdiArea->focusWidget();
+
+    //QString filePath = edit->rev->getLastSavedPath();
+
+    QString sessionRel = sessionName + "/" + edit->rev->getBufferName();
+
+    //strategy: save a copy in session directory
+    if ( saveFile( sessionRel, edit->toPlainText() ) ) {
+
+        QFileInfo info(sessionRel);
+        QString filePath = info.absoluteFilePath();
+
 #ifdef WIN32
-    //truncate the drive specifier from string
-    QString filePath = v.toString().split(':').at(1);
+        //truncate the drive specifier from string
+        filePath = filePath.split(':').at(1);
 #endif
 
-    p << osc::BeginMessage( "/shred/new" ) <<
-            filePath.toAscii().constData() <<
-    //        ++seqRequest << osc::EndMessage;
-         (int) qHash(fileName) << osc::EndMessage;
+        shredFile( filePath, edit->rev->getID() );
+    }
 
-    outSocket.Send( p.Data(), p.Size() );
+//#ifdef WIN32
+//    //truncate the drive specifier from string
+//    filePath = filePath.split(':').at(1);
+//#endif
+
+    //shredFile( filePath, edit->rev->getID() );
 }
 
 void MainWindow::readPendingDatagrams()
@@ -214,62 +241,31 @@ void MainWindow::readPendingDatagrams()
 
                 QGridLayout *gridL = (QGridLayout *)shredTree->layout();
 
-                //try all of the button/filenames to find something to associate
-                /* for (int i=0; i<nBuffers; i++) {
-                    QPushButton *b = (QPushButton *)gridL->itemAtPosition(i,0);
-                    QString fileName = b->text();
-                    if ( qHash(fileName)==edShrid ) {
-                        std::cout << "found a match" << std::endl;
-                    }
-                } */
-
-                /*
-                QObjectList children = shredTree->children();
-                for (int i=0; i<children.length(); i++) {
-
-                    QObject *curr = children.at(i);
-                    if ( !curr->isWidgetType() ) break;
-
-                    QPushButton *b = qobject_cast<QPushButton *>(curr);
-
-                    if ( b!=NULL ) {
-
-                        QString fileName = b->text();
-                        if ( qHash(fileName)==edShrid ) {
-                            std::cout << "found a match" << std::endl;
-                        }
-                    }
-                }*/
                 for (int i=0; i<gridL->count(); i++) {
                     QWidget *w = gridL->itemAt(i)->widget();
+                    QPushButton *b = qobject_cast<QPushButton *>(w);
 
-                    if ( w != NULL ) {
+                    if ( b==NULL ) continue;
 
-                        QPushButton *b = qobject_cast<QPushButton *>(w);
+                    if ( b->property("revID").toInt()==edShrid ) {
+                        std::cout << "found a match" << std::endl;
 
-                        if ( b!=NULL ) {
+                        int row, column, rowSpan, columnSpan;
+                        gridL->getItemPosition( i, &row, &column, &rowSpan, &columnSpan );
 
-                            QString fileName = b->text();
-                            if ( qHash(fileName)==edShrid ) {
-                                std::cout << "found a match" << std::endl;
+                        //add a shred button at the next open position
+                        int col = 1;
+                        while( gridL->itemAtPosition(row,col) != 0 )
+                            col++;
 
-                                int row, column, rowSpan, columnSpan;
-                                gridL->getItemPosition( i, &row, &column, &rowSpan, &columnSpan );
+                        QPushButton *bS = new QPushButton( QString::number(shrid) );
+                        bS->setMaximumWidth( 20 );
+                        gridL->addWidget( bS, row, col, 1, 1 );
 
-                                //add a shred button at the next open position
-                                int col = 1;
-                                while( gridL->itemAtPosition(row,col) != 0 )
-                                    col++;
-
-                                QPushButton *bS = new QPushButton( QString::number(shrid) );
-                                bS->setMaximumWidth( 20 );
-                                gridL->addWidget( bS, row, col, 1, 1 );
-
-                                connect( bS, SIGNAL(clicked()),
-                                         this, SLOT(killShred()));
-                            }
-                        }
+                        connect( bS, SIGNAL(clicked()),
+                                 this, SLOT(killShred()));
                     }
+
                 } //for all buttons in the grid
 
                 QList<QMdiSubWindow *> windowList = mdiArea->subWindowList();
@@ -277,10 +273,10 @@ void MainWindow::readPendingDatagrams()
                 for (i = windowList.begin(); i != windowList.end(); ++i) {
 
                     CodeEdit *edit = (CodeEdit *) (*i)->widget();
-                    QString fileName = edit->property("fileName").toString();
-                    if ( qHash(fileName)==edShrid ) {
 
-                        edit->setProperty( "hasShredded", true );
+                    if ( edit->rev->getID()==edShrid ) {
+
+                        edit->rev->hasShredded = true;
 
                         break;
                     }
@@ -341,7 +337,8 @@ void MainWindow::killShred()
     p << osc::BeginMessage( "/shred/remove" ) <<
             shrid << osc::EndMessage;
 
-    outSocket.Send( p.Data(), p.Size() );
+    //outSocket.Send( p.Data(), p.Size() );
+    outSocket->writeDatagram( p.Data(), p.Size(), QHostAddress::LocalHost, PORT_SEND );
 
 }
 
@@ -353,18 +350,12 @@ void MainWindow::on_actionSave_triggered()
 
     CodeEdit *edit = (CodeEdit *) sub->widget();
 
-    QFile file( edit->property("filePath").toString() );
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-        return;
-
-    QTextStream outStream(&file);
-
-    outStream << edit->toPlainText();
-
-    file.close();
-
-    edit->setProperty("textChanged", false);
-    sub->setWindowTitle( edit->property("fileName").toString() );
+    if ( saveFile(edit->rev->getSavePath(), edit->toPlainText()) )
+    {
+        edit->rev->textChangedSinceSave = false;
+        edit->rev->hasSaved = true;
+        sub->setWindowTitle( edit->rev->getDisplayName() );
+    }
 }
 
 void MainWindow::onTextChanged()
@@ -372,38 +363,36 @@ void MainWindow::onTextChanged()
     CodeEdit *edit = (CodeEdit *) QObject::sender();
     QMdiSubWindow *sub = (QMdiSubWindow *)edit->parent();
 
-    if ( !edit->property("textChanged").toBool() ) {
+    if ( !edit->rev->textChangedSinceSave ) {
 
-        edit->setProperty("textChanged", true);
-        sub->setWindowTitle( edit->property("fileName").toString() + "*" );
+        edit->rev->textChangedSinceSave = true;
+        sub->setWindowTitle( edit->rev->getDisplayName() );
     }
 
     //if hasShredded and text changed (now!) make a new revision
-    if ( edit->property("hasShredded").toBool() ){
+    if ( edit->rev->hasShredded ){
 
-        QString filePath = edit->property("filePath").toString();
-
-        QFileInfo fileInfo( filePath );
-        QFont fixedFont("Courier", 10);
+        QString filePath = edit->rev->srcFilePath;
 
         CodeEdit *edit2 = new CodeEdit(mdiArea);
         edit2->setPlainText( edit->toPlainText() );
-        edit2->setFont( fixedFont );
 
-        edit2->setProperty( "filePath", filePath );
-        edit2->setProperty( "fileName", fileInfo.fileName() );
-        edit2->setProperty( "textChanged", false );
-        edit2->setProperty( "revision", ++maxShredRevision[ filePath ] );
-        edit2->setProperty( "hasShredded", false );
+        QTextCursor cursor = edit2->textCursor();
+        cursor.setPosition( edit->textCursor().position() );
+        edit2->setTextCursor( cursor );
 
-        maxShredRevision[ filePath ] = 0;
+        int thisRev = ++maxShredRevision[ filePath ];
+
+        edit2->rev = new Revision( *(edit->rev), thisRev );
 
         QMdiSubWindow *subWindow = mdiArea->addSubWindow( edit2 );
         subWindow->showMaximized();
-        subWindow->setWindowTitle( fileInfo.fileName() );
+        subWindow->setWindowTitle( edit2->rev->getDisplayName() );
 
-        QPushButton *b1 = new QPushButton( fileInfo.fileName() );
+        QPushButton *b1 = new QPushButton( edit2->rev->getBufferName() );
         b1->setMaximumHeight( 40 );
+        b1->setProperty( "revID", edit2->rev->getID() );
+
         QGridLayout *gridL = (QGridLayout *)shredTree->layout();
         gridL->addWidget(b1,++nBuffers,0, Qt::AlignLeft|Qt::AlignTop);
         gridL->setRowStretch(nBuffers, 0);

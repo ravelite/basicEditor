@@ -3,24 +3,29 @@
 
 #include <QString>
 #include <QList>
+#include <QFileInfo>
 
-/* Models a revision of a code file.
-  Has at least a name, derived from the filename,
-  as well as the text of the code,
-  as well as some shreds associated with it. */
-
-//struct shred {
-//};
+/* Models a revision of a code file. */
 
 class Revision
 {
 
 public:
-    Revision(QString name, QString code);
+    Revision (QString srcFilePath); //new
+    Revision (Revision &prev, int revNum); //branch
 
-    QString name;
-    QString code;
-    QList<int> shreds;
+    QString getDisplayName();
+    QString getBufferName();
+    QString getSavePath();
+    QString getLastSavedPath();
+    int getID();
+
+    QString srcFilePath;
+    bool textChangedSinceSave;
+    int revNum;
+    bool hasShredded;
+    bool hasSaved;
+
 };
 
 #endif // REVISION_H
