@@ -1,0 +1,15 @@
+unAudicle issue tracking
+
+* BUGS
+** When creating new revision, old revision not preserved.
+** Bugs with gridlayout when getting rid of shreds.
+
+* Feature Ideas
+** Support Supercollider.
+** Make a better revision tree visualization.
+** Automatically delete empty sessions.
+** Save information for replaying a session.
+
+* Stupid Feature Ideas
+** Make a configurable splash screen.
+
