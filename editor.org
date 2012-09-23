@@ -9,6 +9,7 @@ unAudicle issue tracking
 ** Make a better revision tree visualization.
 ** Automatically delete empty sessions.
 ** Save information for replaying a session.
+** Make a shred action "fadeOut".
 
 * Stupid Feature Ideas
 ** Make a configurable splash screen.

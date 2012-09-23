@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network script
 
 TARGET = basicEditor
 TEMPLATE = app
@@ -13,9 +13,6 @@ INCLUDEPATH += C:\Users\Graham\Desktop\chuck_today\oscpack
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    ../oscpack/ip/IpEndpointName.cpp \
-    ../oscpack/ip/win32/UdpSocket.cpp \
-    ../oscpack/ip/win32/NetworkingUtils.cpp \
     ../oscpack/osc/OscTypes.cpp \
     ../oscpack/osc/OscReceivedElements.cpp \
     ../oscpack/osc/OscPrintReceivedElements.cpp \
@@ -24,10 +21,8 @@ SOURCES += main.cpp\
     revision.cpp
 
 HEADERS  += mainwindow.h \
-    ../oscpack/ip/UdpSocket.h \
     ../oscpack/ip/TimerListener.h \
     ../oscpack/ip/PacketListener.h \
-    ../oscpack/ip/NetworkingUtils.h \
     ../oscpack/ip/IpEndpointName.h \
     ../oscpack/osc/OscTypes.h \
     ../oscpack/osc/OscReceivedElements.h \
@@ -42,4 +37,4 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui
 
-LIBS += Ws2_32.lib WINMM.LIB
+#LIBS += Ws2_32.lib WINMM.LIB

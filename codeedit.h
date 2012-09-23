@@ -15,6 +15,7 @@ public:
 
 protected:
     void wheelEvent(QWheelEvent *e);
+    //void inputMethodEvent(QInputMethodEvent *ev);
     
 signals:
     

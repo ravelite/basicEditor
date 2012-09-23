@@ -2,6 +2,8 @@
 
 #include <QWheelEvent>
 
+#include <iostream>
+
 CodeEdit::CodeEdit(QWidget *parent) :
     QTextEdit(parent)
 {
@@ -26,3 +28,11 @@ void CodeEdit::wheelEvent(QWheelEvent *ev)
         QTextEdit::wheelEvent(ev);
 
 }
+
+/*
+void CodeEdit::inputMethodEvent(QInputMethodEvent *ev)
+{
+    std::cout << "input Method Event" << std::endl;
+    QTextEdit::inputMethodEvent(ev);
+}
+*/

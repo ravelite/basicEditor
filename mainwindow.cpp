@@ -22,6 +22,9 @@
 
 #include <iostream>
 
+#include <QtScript/QScriptEngine>
+#include <QtScript/QScriptValue>
+
 #define PORT_SEND 7000
 #define PORT_RECV 7001
 #define OUTPUT_BUFFER_SIZE 1024
@@ -78,6 +81,33 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         std::cerr << "Problems creating session directory." << std::endl;
     }
+
+    QScriptEngine engine;
+    QFile scriptFile("macros.qs");
+    if ( scriptFile.exists() &&
+         scriptFile.open(QIODevice::ReadOnly | QIODevice::Text) )
+    {
+        std::cout << "found macros.qs" << std::endl;
+
+        QTextStream stream( &scriptFile );
+        QString fileText = stream.readAll();
+        scriptFile.close();
+
+        //engine.globalObject().setProperty("macros", engine.newObject());
+        std::cout << engine.evaluate(fileText).toString().toStdString() << std::endl;
+
+        QVariantMap map = qscriptvalue_cast<QVariantMap>( engine.globalObject().property("macros") );
+        QVariantMap::const_iterator i;
+        for (i=map.constBegin(); i != map.constEnd(); ++i)
+            std::cout << i.key().toStdString() << ": " << i.value().toString().toStdString() << std::endl;
+
+        //std::cout << engine.evaluate("macros").toString().toStdString() << std::endl;
+        //std::cout << engine.globalObject().toString().toStdString() << std::endl;
+        //std::cout << engine.globalObject().property("macros2").toString().toStdString() << std::endl;
+
+
+    }
+
 
 }
 
@@ -376,6 +406,9 @@ void MainWindow::onTextChanged()
 
         CodeEdit *edit2 = new CodeEdit(mdiArea);
         edit2->setPlainText( edit->toPlainText() );
+
+        //now undo the change so you get previous cursor
+        //edit->undo();
 
         QTextCursor cursor = edit2->textCursor();
         cursor.setPosition( edit->textCursor().position() );
