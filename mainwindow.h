@@ -35,6 +35,7 @@ private:
     QUdpSocket *udpSocket;
     QMap<QString, int> maxShredRevision;
     QString sessionName;
+    QVariantMap macros;
 
     //a sequence number for the OSC requests
     int seqRequest;
@@ -44,6 +45,7 @@ private:
     void sendTestMessage();
     void shredFile(QString filePath, int revID);
     bool saveFile(QString filePath, QString textContent);
+    QString applyMacros(QString text);
 };
 
 #endif // MAINWINDOW_H

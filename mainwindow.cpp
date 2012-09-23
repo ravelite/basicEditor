@@ -93,19 +93,15 @@ MainWindow::MainWindow(QWidget *parent) :
         QString fileText = stream.readAll();
         scriptFile.close();
 
-        //engine.globalObject().setProperty("macros", engine.newObject());
-        std::cout << engine.evaluate(fileText).toString().toStdString() << std::endl;
+        engine.globalObject().setProperty("macros", engine.newObject());
+        std::cerr << engine.evaluate(fileText).toString().toStdString() << std::endl;
+        macros = qscriptvalue_cast<QVariantMap>( engine.globalObject().property("macros") );
 
-        QVariantMap map = qscriptvalue_cast<QVariantMap>( engine.globalObject().property("macros") );
+        /*
         QVariantMap::const_iterator i;
-        for (i=map.constBegin(); i != map.constEnd(); ++i)
+        for (i=macros.constBegin(); i != macros.constEnd(); ++i)
             std::cout << i.key().toStdString() << ": " << i.value().toString().toStdString() << std::endl;
-
-        //std::cout << engine.evaluate("macros").toString().toStdString() << std::endl;
-        //std::cout << engine.globalObject().toString().toStdString() << std::endl;
-        //std::cout << engine.globalObject().property("macros2").toString().toStdString() << std::endl;
-
-
+        */
     }
 
 
@@ -210,6 +206,15 @@ void MainWindow::shredFile(QString filePath, int revID) {
     outSocket->writeDatagram( p.Data(), p.Size(), QHostAddress::LocalHost, PORT_SEND );
 }
 
+QString MainWindow::applyMacros(QString text)
+{
+    QVariantMap::const_iterator i;
+    for (i=macros.constBegin(); i != macros.constEnd(); ++i)
+        text = text.replace(i.key(), i.value().toString());
+
+    return text;
+}
+
 void MainWindow::on_actionAdd_Shred_triggered()
 {
     //get the text from the active buffer (but also the filename)
@@ -219,8 +224,10 @@ void MainWindow::on_actionAdd_Shred_triggered()
 
     QString sessionRel = sessionName + "/" + edit->rev->getBufferName();
 
+    QString progText = applyMacros( edit->toPlainText() );
+
     //strategy: save a copy in session directory
-    if ( saveFile( sessionRel, edit->toPlainText() ) ) {
+    if ( saveFile( sessionRel, progText ) ) {
 
         QFileInfo info(sessionRel);
         QString filePath = info.absoluteFilePath();
