@@ -411,14 +411,15 @@ void MainWindow::onTextChanged()
 
         QString filePath = edit->rev->srcFilePath;
 
-        CodeEdit *edit2 = new CodeEdit(mdiArea);
-        edit2->setPlainText( edit->toPlainText() );
+        //get info from the parent revision
+        QString bufferTextChanged = edit->toPlainText();
+        int cursorPos = edit->textCursor().position();
 
-        //now undo the change so you get previous cursor
-        //edit->undo();
+        CodeEdit *edit2 = new CodeEdit(mdiArea);
+        edit2->setPlainText( bufferTextChanged );
 
         QTextCursor cursor = edit2->textCursor();
-        cursor.setPosition( edit->textCursor().position() );
+        cursor.setPosition( cursorPos );
         edit2->setTextCursor( cursor );
 
         int thisRev = ++maxShredRevision[ filePath ];
@@ -452,6 +453,13 @@ void MainWindow::onTextChanged()
         QWidget *spacer = new QWidget();
         gridL->addWidget(spacer,nBuffers+1,0,-1,0);
         gridL->setRowStretch(nBuffers+1, 1000);
+
+        //disconnect textChanged() for parent
+        disconnect(edit, SIGNAL(textChanged()),
+                   this, SLOT(onTextChanged()));
+        edit->undo(); //undo previous edit in old buffer
+        connect( edit, SIGNAL(textChanged()),
+                 this, SLOT(onTextChanged()));
     }
 
 }

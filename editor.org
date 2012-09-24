@@ -1,7 +1,10 @@
 unAudicle issue tracking
 
 * BUGS
-** When creating new revision, old revision not preserved.
+** DONE When creating new revision, old revision not preserved.
+   The fix works like this:
+   Before you undo the parent buffer, disconnect textChanged() signal.
+   Then after you undo, you can reconnect it.
 ** Bugs with gridlayout when getting rid of shreds.
 
 * Feature Ideas

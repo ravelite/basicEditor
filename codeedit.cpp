@@ -36,3 +36,11 @@ void CodeEdit::inputMethodEvent(QInputMethodEvent *ev)
     QTextEdit::inputMethodEvent(ev);
 }
 */
+
+/*
+void CodeEdit::changeEvent(QEvent *e)
+{
+    std::cout << "change " << std::endl;
+    QTextEdit::changeEvent(e);
+}
+*/

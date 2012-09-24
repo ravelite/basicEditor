@@ -40,4 +40,4 @@ FORMS    += mainwindow.ui
 #LIBS += Ws2_32.lib WINMM.LIB
 
 OTHER_FILES += \
-    macros.qs
+    macros.qs editor.org
