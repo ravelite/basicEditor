@@ -13,6 +13,10 @@ unAudicle issue tracking
 ** Automatically delete empty sessions.
 ** Save information for replaying a session.
 ** Make a shred action "fadeOut".
+** Support File, New Buffer.
+** Extend and use the macro system (maybe with arg macros)
+   to support global variable declarations in chuck.
+** Try to make a signals and slots way to interact with tree viz.
 
 * Stupid Feature Ideas
 ** Make a configurable splash screen.
