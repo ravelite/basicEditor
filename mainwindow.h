@@ -26,6 +26,8 @@ private slots:
     void on_actionSave_triggered();
     void onTextChanged();
 
+    void on_actionNew_triggered();
+
 private:
     Ui::MainWindow *ui;
 

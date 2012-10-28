@@ -10,6 +10,7 @@ unAudicle issue tracking
 * Feature Ideas
 ** Support Supercollider.
 ** Make a better revision tree visualization.
+*** Try implementing the ordered tree layout algorithm in trees.pdf.
 ** Automatically delete empty sessions.
 ** Save information for replaying a session.
 ** Make a shred action "fadeOut".

@@ -463,3 +463,8 @@ void MainWindow::onTextChanged()
     }
 
 }
+
+void MainWindow::on_actionNew_triggered()
+{
+
+}
