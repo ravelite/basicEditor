@@ -2,24 +2,32 @@
 
 #include <QHash>
 
+//declare the static object
+QMap<QString, int> Revision::maxPathRevision;
+
 /* A new revision here */
 Revision::Revision(QString srcFilePath) :
+    parent(NULL),
     srcFilePath(srcFilePath),
     textChangedSinceSave(false),
     revNum(0),
     hasShredded(false),
     hasSaved(false)
 {
+    //assume no other revisions from this src path
+    maxPathRevision[ srcFilePath ] = 0;
 }
 
 /* branch a previous revision */
-Revision::Revision(Revision &prev, int revNum) :
-    srcFilePath( prev.srcFilePath ),
+Revision::Revision(Revision *prev) :
+    parent(prev),
+    srcFilePath( prev->srcFilePath ),
     textChangedSinceSave( true ),
-    revNum( revNum ),
+    revNum( ++maxPathRevision[ srcFilePath ] ),
     hasShredded( false ),
     hasSaved(false)
 {
+    parent->addChild(this);
 }
 
 QString Revision::getBufferName()
@@ -72,3 +80,7 @@ int Revision::getID()
     return qHash(getSavePath());
 }
 
+void Revision::addChild(Revision *child)
+{
+    children << child;
+}

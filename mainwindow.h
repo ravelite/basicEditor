@@ -5,6 +5,8 @@
 #include <QMdiArea>
 #include <QUdpSocket>
 #include <QMap>
+#include <QTreeWidget>
+#include "revision.h"
 
 namespace Ui {
 class MainWindow;
@@ -33,11 +35,14 @@ private:
 
     QUdpSocket *outSocket;
     QMdiArea *mdiArea;
-    QWidget *shredTree;
+    //QWidget *shredTree;
+    QTreeWidget *shredTree;
+
     QUdpSocket *udpSocket;
-    QMap<QString, int> maxShredRevision;
     QString sessionName;
     QVariantMap macros;
+
+    QList<Revision *> revisions;
 
     //a sequence number for the OSC requests
     int seqRequest;
@@ -48,6 +53,8 @@ private:
     void shredFile(QString filePath, int revID);
     bool saveFile(QString filePath, QString textContent);
     QString applyMacros(QString text);
+    void createSessionDirectory();
+    void loadMacros();
 };
 
 #endif // MAINWINDOW_H

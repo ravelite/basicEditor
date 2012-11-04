@@ -15,20 +15,21 @@
 #include <QGridLayout>
 
 #include <QTextEdit>
-
 #include <QDateTime>
-
 #include "codeedit.h"
-
 #include <iostream>
 
 #include <QtScript/QScriptEngine>
 #include <QtScript/QScriptValue>
 
+#include <QTreeWidgetItem>
+
 #define PORT_SEND 7000
 #define PORT_RECV 7001
 #define OUTPUT_BUFFER_SIZE 1024
 #define ADDRESS "127.0.0.1"
+
+//TODO: separate appLogic with GUI
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -55,12 +56,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->setCentralWidget(mdiArea);
 
-    //set up the shredTree widget
-    QGridLayout *grid = new QGridLayout();
-    grid->setSpacing(0);
-    grid->setContentsMargins(1,1,1,1);
-    shredTree = new QWidget();
-    shredTree->setLayout( grid );
+    //TODO: refactor this, it is too complicated
+    shredTree = new QTreeWidget();
+    shredTree->setColumnCount(2);
 
     QDockWidget *dock = new QDockWidget();
     dock->setWidget( shredTree );
@@ -72,39 +70,8 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(readPendingDatagrams()));
 
     sendTestMessage();
-
-    //create a session directory
-    QDir dir;
-    sessionName =
-       "session" + QDateTime::currentDateTime().toString( Qt::ISODate ).replace(':','.');
-    if ( !dir.mkdir( sessionName ) )
-    {
-        std::cerr << "Problems creating session directory." << std::endl;
-    }
-
-    QScriptEngine engine;
-    QFile scriptFile("macros.qs");
-    if ( scriptFile.exists() &&
-         scriptFile.open(QIODevice::ReadOnly | QIODevice::Text) )
-    {
-        std::cout << "found macros.qs" << std::endl;
-
-        QTextStream stream( &scriptFile );
-        QString fileText = stream.readAll();
-        scriptFile.close();
-
-        engine.globalObject().setProperty("macros", engine.newObject());
-        std::cerr << engine.evaluate(fileText).toString().toStdString() << std::endl;
-        macros = qscriptvalue_cast<QVariantMap>( engine.globalObject().property("macros") );
-
-        /*
-        QVariantMap::const_iterator i;
-        for (i=macros.constBegin(); i != macros.constEnd(); ++i)
-            std::cout << i.key().toStdString() << ": " << i.value().toString().toStdString() << std::endl;
-        */
-    }
-
-
+    createSessionDirectory();
+    loadMacros();
 }
 
 MainWindow::~MainWindow()
@@ -127,6 +94,47 @@ void MainWindow::sendTestMessage() {
     outSocket->writeDatagram( p.Data(), p.Size(), QHostAddress::LocalHost, PORT_SEND );
 }
 
+void MainWindow::createSessionDirectory()
+{
+    //create a session directory
+    QDir dir;
+    sessionName =
+       "session" + QDateTime::currentDateTime().toString( Qt::ISODate ).replace(':','.');
+    if ( !dir.mkdir( sessionName ) )
+    {
+        std::cerr << "Problems creating session directory." << std::endl;
+    }
+}
+
+//MACRO RELATED CODE
+void MainWindow::loadMacros()
+{
+    QScriptEngine engine;
+    QFile scriptFile("macros.qs");
+    if ( scriptFile.exists() &&
+         scriptFile.open(QIODevice::ReadOnly | QIODevice::Text) )
+    {
+        std::cout << "found macros.qs" << std::endl;
+
+        QTextStream stream( &scriptFile );
+        QString fileText = stream.readAll();
+        scriptFile.close();
+
+        engine.globalObject().setProperty("macros", engine.newObject());
+        std::cerr << engine.evaluate(fileText).toString().toStdString() << std::endl;
+        macros = qscriptvalue_cast<QVariantMap>( engine.globalObject().property("macros") );
+    }
+}
+
+QString MainWindow::applyMacros(QString text)
+{
+    QVariantMap::const_iterator i;
+    for (i=macros.constBegin(); i != macros.constEnd(); ++i)
+        text = text.replace(i.key(), i.value().toString());
+
+    return text;
+}
+
 void MainWindow::on_actionOpen_triggered()
 {
     QString filePath = QFileDialog::getOpenFileName(this,
@@ -147,36 +155,16 @@ void MainWindow::on_actionOpen_triggered()
     edit->setPlainText( fileText );
 
     edit->rev = new Revision( filePath );
-
-    maxShredRevision[ filePath ] = 0;
+    revisions << edit->rev;
 
     QMdiSubWindow *subWindow = mdiArea->addSubWindow( edit );
     subWindow->showMaximized();
     subWindow->setWindowTitle( fileInfo.fileName() );
 
-    QPushButton *b1 = new QPushButton( fileInfo.fileName() );
-    b1->setMaximumHeight( 40 );
-    b1->setProperty( "revID", edit->rev->getID() );
-
-    QGridLayout *gridL = (QGridLayout *)shredTree->layout();
-    gridL->addWidget(b1,++nBuffers,0, Qt::AlignLeft|Qt::AlignTop);
-    gridL->setRowStretch(nBuffers, 0);
-
-    //connect this to focus changes in mdiArea
-    connect( subWindow, SIGNAL(aboutToActivate()),
-             b1, SLOT(animateClick()) );
-
-    //also connect buttons to activate subwindows
-    connect( b1, SIGNAL(clicked()),
-             subWindow, SLOT(setFocus()));
-
-    connect( edit, SIGNAL(textChanged()),
-             this, SLOT(onTextChanged()) );
-
-    //add a widget to take up the rest of the space
-    QWidget *spacer = new QWidget();
-    gridL->addWidget(spacer,nBuffers+1,0,-1,0);
-    gridL->setRowStretch(nBuffers+1, 1000);
+    QStringList str;
+    str << fileInfo.fileName();
+    str << QString::number( edit->rev->getID() );
+    shredTree->addTopLevelItem(new QTreeWidgetItem(str));
 }
 
 bool MainWindow::saveFile(QString filePath, QString textContent)
@@ -191,28 +179,6 @@ bool MainWindow::saveFile(QString filePath, QString textContent)
     file.close();
 
     return true;
-}
-
-void MainWindow::shredFile(QString filePath, int revID) {
-
-    char buffer[OUTPUT_BUFFER_SIZE];
-    osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
-
-    //for now, just use the source file path for hash
-    p << osc::BeginMessage( "/shred/new" ) <<
-         filePath.toAscii().constData() <<
-         revID << osc::EndMessage;
-
-    outSocket->writeDatagram( p.Data(), p.Size(), QHostAddress::LocalHost, PORT_SEND );
-}
-
-QString MainWindow::applyMacros(QString text)
-{
-    QVariantMap::const_iterator i;
-    for (i=macros.constBegin(); i != macros.constEnd(); ++i)
-        text = text.replace(i.key(), i.value().toString());
-
-    return text;
 }
 
 void MainWindow::on_actionAdd_Shred_triggered()
@@ -240,12 +206,19 @@ void MainWindow::on_actionAdd_Shred_triggered()
         shredFile( filePath, edit->rev->getID() );
     }
 
-//#ifdef WIN32
-//    //truncate the drive specifier from string
-//    filePath = filePath.split(':').at(1);
-//#endif
+}
 
-    //shredFile( filePath, edit->rev->getID() );
+void MainWindow::shredFile(QString filePath, int revID) {
+
+    char buffer[OUTPUT_BUFFER_SIZE];
+    osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
+
+    //for now, just use the source file path for hash
+    p << osc::BeginMessage( "/shred/new" ) <<
+         filePath.toAscii().constData() <<
+         revID << osc::EndMessage;
+
+    outSocket->writeDatagram( p.Data(), p.Size(), QHostAddress::LocalHost, PORT_SEND );
 }
 
 void MainWindow::readPendingDatagrams()
@@ -276,6 +249,38 @@ void MainWindow::readPendingDatagrams()
 
                 std::cout << "/shred/new," << edShrid << "," << shrid << std::endl;
 
+                //go through all revisions looking for revID
+                QList<Revision *>::const_iterator curr;
+                for (curr=revisions.constBegin(); curr!=revisions.constEnd();
+                     ++curr)
+                {
+                    Revision *r = *curr;
+
+                    std::cout << "Rev " << r->getID() << std::endl;
+
+                    if ( edShrid==r->getID() ) {
+
+                        std::cout << "Found the revision." << std::endl;
+
+                        QString revStr = QString::number( r->getID() );
+
+                        QList<QTreeWidgetItem *> res =
+                        shredTree->findItems(revStr, Qt::MatchExactly, 1);
+
+                        if ( res.size() > 0 ) {
+
+                            std::cout << "Found the widgetItem." << std::endl;
+
+                            QStringList str;
+                            str << QString::number( shrid );
+                            QTreeWidgetItem *item =
+                                    new QTreeWidgetItem(str);
+                            res[0]->addChild( item );
+                        }
+                    }
+                }
+
+                /*
                 QGridLayout *gridL = (QGridLayout *)shredTree->layout();
 
                 for (int i=0; i<gridL->count(); i++) {
@@ -304,6 +309,7 @@ void MainWindow::readPendingDatagrams()
                     }
 
                 } //for all buttons in the grid
+                */
 
                 QList<QMdiSubWindow *> windowList = mdiArea->subWindowList();
                 QList<QMdiSubWindow *>::iterator i;
@@ -422,9 +428,8 @@ void MainWindow::onTextChanged()
         cursor.setPosition( cursorPos );
         edit2->setTextCursor( cursor );
 
-        int thisRev = ++maxShredRevision[ filePath ];
-
-        edit2->rev = new Revision( *(edit->rev), thisRev );
+        edit2->rev = new Revision( edit->rev );
+        revisions << edit2->rev;
 
         QMdiSubWindow *subWindow = mdiArea->addSubWindow( edit2 );
         subWindow->showMaximized();
