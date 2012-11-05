@@ -20,6 +20,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+public slots:
+    void killShred(QTreeWidgetItem *item);
+
 private slots:
     void on_actionOpen_triggered();
     void on_actionAdd_Shred_triggered();
@@ -27,7 +30,6 @@ private slots:
     void killShred();
     void on_actionSave_triggered();
     void onTextChanged();
-
     void on_actionNew_triggered();
 
 private:

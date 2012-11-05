@@ -256,11 +256,11 @@ void MainWindow::readPendingDatagrams()
                 {
                     Revision *r = *curr;
 
-                    std::cout << "Rev " << r->getID() << std::endl;
+                    //std::cout << "Rev " << r->getID() << std::endl;
 
                     if ( edShrid==r->getID() ) {
 
-                        std::cout << "Found the revision." << std::endl;
+                        //std::cout << "Found the revision." << std::endl;
 
                         QString revStr = QString::number( r->getID() );
 
@@ -269,13 +269,17 @@ void MainWindow::readPendingDatagrams()
 
                         if ( res.size() > 0 ) {
 
-                            std::cout << "Found the widgetItem." << std::endl;
+                            //std::cout << "Found the widgetItem." << std::endl;
 
                             QStringList str;
                             str << QString::number( shrid );
+                            str << "";
                             QTreeWidgetItem *item =
                                     new QTreeWidgetItem(str);
                             res[0]->addChild( item );
+
+                            connect( shredTree, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
+                                     this, SLOT(killShred(QTreeWidgetItem*)) );
                         }
                     }
                 }
@@ -333,6 +337,7 @@ void MainWindow::readPendingDatagrams()
 
                 std::cout << "/shred/remove," << shrid << std::endl;
 
+                /*
                 QGridLayout *gridL = (QGridLayout *)shredTree->layout();
 
                 for (int i=0; i<gridL->count(); i++) {
@@ -352,7 +357,22 @@ void MainWindow::readPendingDatagrams()
                     }
 
                 } //for all buttons in the grid
+                */
 
+                QString revStr = QString::number( shrid );
+
+                QList<QTreeWidgetItem *> res =
+                shredTree->findItems(revStr, Qt::MatchExactly|Qt::MatchRecursive, 0);
+
+                std::cout << "trying to remove: " << shrid << std::endl;
+                std::cout << "found items to remove: " << res.size() << std::endl;
+
+                if ( res.size() > 0 ) {
+                    //shredTree->removeItemWidget(res[0], 0);
+
+                    //seems evil, but I guess this is the qt way
+                    delete res[0];
+                }
 
             } else { //any other message
 
@@ -369,6 +389,7 @@ void MainWindow::readPendingDatagrams()
     }
 }
 
+//TODO refactor below methods
 void MainWindow::killShred()
 {
     QPushButton *b1 = (QPushButton *) QObject::sender();
@@ -383,6 +404,20 @@ void MainWindow::killShred()
     //outSocket.Send( p.Data(), p.Size() );
     outSocket->writeDatagram( p.Data(), p.Size(), QHostAddress::LocalHost, PORT_SEND );
 
+}
+
+void MainWindow::killShred(QTreeWidgetItem *item)
+{
+    int shrid = item->text(0).toInt();
+
+    char buffer[OUTPUT_BUFFER_SIZE];
+    osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
+
+    p << osc::BeginMessage( "/shred/remove" ) <<
+            shrid << osc::EndMessage;
+
+    //outSocket.Send( p.Data(), p.Size() );
+    outSocket->writeDatagram( p.Data(), p.Size(), QHostAddress::LocalHost, PORT_SEND );
 }
 
 void MainWindow::on_actionSave_triggered()
