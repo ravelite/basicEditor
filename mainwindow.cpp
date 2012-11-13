@@ -60,6 +60,10 @@ MainWindow::MainWindow(QWidget *parent) :
     shredTree = new QTreeWidget();
     shredTree->setColumnCount(2);
 
+    //connect shredTree for delete messages (just once)
+    connect( shredTree, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
+             this, SLOT(killShred(QTreeWidgetItem*)) );
+
     QDockWidget *dock = new QDockWidget();
     dock->setWidget( shredTree );
     addDockWidget( Qt::RightDockWidgetArea, dock );
@@ -262,6 +266,9 @@ void MainWindow::readPendingDatagrams()
 
                         //std::cout << "Found the revision." << std::endl;
 
+                        //mark revision as shredded
+                        r->hasShredded = true;
+
                         QString revStr = QString::number( r->getID() );
 
                         QList<QTreeWidgetItem *> res =
@@ -278,8 +285,7 @@ void MainWindow::readPendingDatagrams()
                                     new QTreeWidgetItem(str);
                             res[0]->addChild( item );
 
-                            connect( shredTree, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
-                                     this, SLOT(killShred(QTreeWidgetItem*)) );
+
                         }
                     }
                 }
@@ -315,6 +321,7 @@ void MainWindow::readPendingDatagrams()
                 } //for all buttons in the grid
                 */
 
+                /*
                 QList<QMdiSubWindow *> windowList = mdiArea->subWindowList();
                 QList<QMdiSubWindow *>::iterator i;
                 for (i = windowList.begin(); i != windowList.end(); ++i) {
@@ -327,8 +334,8 @@ void MainWindow::readPendingDatagrams()
 
                         break;
                     }
-
                 }
+                */
 
             } else if ( strcmp( m.AddressPattern(), "/shred/remove") ==0 ) {
 
@@ -390,6 +397,7 @@ void MainWindow::readPendingDatagrams()
 }
 
 //TODO refactor below methods
+//TODO might not be used anymore
 void MainWindow::killShred()
 {
     QPushButton *b1 = (QPushButton *) QObject::sender();
@@ -470,6 +478,7 @@ void MainWindow::onTextChanged()
         subWindow->showMaximized();
         subWindow->setWindowTitle( edit2->rev->getDisplayName() );
 
+        /*
         QPushButton *b1 = new QPushButton( edit2->rev->getBufferName() );
         b1->setMaximumHeight( 40 );
         b1->setProperty( "revID", edit2->rev->getID() );
@@ -493,6 +502,14 @@ void MainWindow::onTextChanged()
         QWidget *spacer = new QWidget();
         gridL->addWidget(spacer,nBuffers+1,0,-1,0);
         gridL->setRowStretch(nBuffers+1, 1000);
+        */
+
+        QFileInfo fileInfo(filePath);
+
+        QStringList str;
+        str << fileInfo.fileName();
+        str << QString::number( edit2->rev->getID() );
+        shredTree->addTopLevelItem(new QTreeWidgetItem(str));
 
         //disconnect textChanged() for parent
         disconnect(edit, SIGNAL(textChanged()),
