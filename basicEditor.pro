@@ -18,7 +18,10 @@ SOURCES += main.cpp\
     ../oscpack/osc/OscPrintReceivedElements.cpp \
     ../oscpack/osc/OscOutboundPacketStream.cpp \
     codeedit.cpp \
-    revision.cpp
+    revision.cpp \
+    revui.cpp \
+    process.cpp \
+    revtree.cpp
 
 HEADERS  += mainwindow.h \
     ../oscpack/ip/TimerListener.h \
@@ -33,7 +36,10 @@ HEADERS  += mainwindow.h \
     ../oscpack/osc/OscException.h \
     ../oscpack/osc/MessageMappingOscPacketListener.h \
     codeedit.h \
-    revision.h
+    revision.h \
+    revui.h \
+    process.h \
+    revtree.h
 
 FORMS    += mainwindow.ui
 
