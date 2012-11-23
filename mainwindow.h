@@ -7,6 +7,8 @@
 #include <QMap>
 #include <QTreeWidget>
 #include "revision.h"
+#include "revui.h"
+#include "revtree.h"
 
 namespace Ui {
 class MainWindow;
@@ -38,7 +40,7 @@ private:
     QUdpSocket *outSocket;
     QMdiArea *mdiArea;
     //QWidget *shredTree;
-    QTreeWidget *shredTree;
+    RevTree *shredTree;
 
     QUdpSocket *udpSocket;
     QString sessionName;

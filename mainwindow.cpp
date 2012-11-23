@@ -24,6 +24,8 @@
 
 #include <QTreeWidgetItem>
 
+#include "revtree.h"
+
 #define PORT_SEND 7000
 #define PORT_RECV 7001
 #define OUTPUT_BUFFER_SIZE 1024
@@ -57,8 +59,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setCentralWidget(mdiArea);
 
     //TODO: refactor this, it is too complicated
-    shredTree = new QTreeWidget();
-    shredTree->setColumnCount(2);
+    //shredTree = new QTreeWidget();
+    //shredTree->setColumnCount(2);
+    shredTree = new RevTree();
 
     //connect shredTree for delete messages (just once)
     connect( shredTree, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
@@ -165,10 +168,10 @@ void MainWindow::on_actionOpen_triggered()
     subWindow->showMaximized();
     subWindow->setWindowTitle( fileInfo.fileName() );
 
-    QStringList str;
-    str << fileInfo.fileName();
-    str << QString::number( edit->rev->getID() );
-    shredTree->addTopLevelItem(new QTreeWidgetItem(str));
+    shredTree->addRevision( *(edit->rev) );
+
+    connect( edit, SIGNAL(textChanged()),
+             this, SLOT(onTextChanged()) );
 }
 
 bool MainWindow::saveFile(QString filePath, QString textContent)
@@ -453,6 +456,8 @@ void MainWindow::onTextChanged()
 
         edit->rev->textChangedSinceSave = true;
         sub->setWindowTitle( edit->rev->getDisplayName() );
+
+        //TODO: also update in shredTree UI
     }
 
     //if hasShredded and text changed (now!) make a new revision
@@ -504,12 +509,7 @@ void MainWindow::onTextChanged()
         gridL->setRowStretch(nBuffers+1, 1000);
         */
 
-        QFileInfo fileInfo(filePath);
-
-        QStringList str;
-        str << fileInfo.fileName();
-        str << QString::number( edit2->rev->getID() );
-        shredTree->addTopLevelItem(new QTreeWidgetItem(str));
+        shredTree->addRevision( *(edit2->rev) );
 
         //disconnect textChanged() for parent
         disconnect(edit, SIGNAL(textChanged()),
@@ -517,6 +517,10 @@ void MainWindow::onTextChanged()
         edit->undo(); //undo previous edit in old buffer
         connect( edit, SIGNAL(textChanged()),
                  this, SLOT(onTextChanged()));
+
+        //connect textChanged() for child
+        connect( edit2, SIGNAL(textChanged()),
+                 this, SLOT(onTextChanged()) );
     }
 
 }
