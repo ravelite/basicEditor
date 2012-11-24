@@ -19,7 +19,6 @@ SOURCES += main.cpp\
     ../oscpack/osc/OscOutboundPacketStream.cpp \
     codeedit.cpp \
     revision.cpp \
-    revui.cpp \
     process.cpp \
     revtree.cpp
 
