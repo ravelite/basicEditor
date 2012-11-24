@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     codeedit.cpp \
     revision.cpp \
     process.cpp \
-    revtree.cpp
+    revtree.cpp \
+    mw_macros.cpp
 
 HEADERS  += mainwindow.h \
     ../oscpack/ip/TimerListener.h \

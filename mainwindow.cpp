@@ -19,9 +19,6 @@
 #include "codeedit.h"
 #include <iostream>
 
-#include <QtScript/QScriptEngine>
-#include <QtScript/QScriptValue>
-
 #include <QTreeWidgetItem>
 
 #include "revtree.h"
@@ -58,14 +55,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->setCentralWidget(mdiArea);
 
-    //TODO: refactor this, it is too complicated
-    //shredTree = new QTreeWidget();
-    //shredTree->setColumnCount(2);
     shredTree = new RevTree();
 
-    //connect shredTree for delete messages (just once)
+    //TODO: make shredTree use its generic interface
+    //connect shredTree for delete messages
     connect( shredTree, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
              this, SLOT(killShred(QTreeWidgetItem*)) );
+
+    //make codeWindows respond to shredTree selection
+    connect( shredTree, SIGNAL(selectedRevision(Revision*)),
+             this, SLOT(selectRevision(Revision*)) );
 
     QDockWidget *dock = new QDockWidget();
     dock->setWidget( shredTree );
@@ -113,33 +112,32 @@ void MainWindow::createSessionDirectory()
     }
 }
 
-//MACRO RELATED CODE
-void MainWindow::loadMacros()
+void MainWindow::addCodeWindow(Revision *r, QString fileText, int cursorPos = 0)
 {
-    QScriptEngine engine;
-    QFile scriptFile("macros.qs");
-    if ( scriptFile.exists() &&
-         scriptFile.open(QIODevice::ReadOnly | QIODevice::Text) )
+    CodeEdit *edit = new CodeEdit(mdiArea);
+    edit->setPlainText( fileText );
+
+    edit->rev = r;
+    revisions << edit->rev;
+
+    QMdiSubWindow *subWindow = mdiArea->addSubWindow( edit );
+    subWindow->showMaximized();
+    subWindow->setWindowTitle( edit->rev->getBufferName() );
+
+    shredTree->addRevision( edit->rev );
+
+    //add to subwindow map
+    subWindowMap[r] = subWindow;
+
+    if ( cursorPos > 0 )
     {
-        std::cout << "found macros.qs" << std::endl;
-
-        QTextStream stream( &scriptFile );
-        QString fileText = stream.readAll();
-        scriptFile.close();
-
-        engine.globalObject().setProperty("macros", engine.newObject());
-        std::cerr << engine.evaluate(fileText).toString().toStdString() << std::endl;
-        macros = qscriptvalue_cast<QVariantMap>( engine.globalObject().property("macros") );
+        QTextCursor cursor = edit->textCursor();
+        cursor.setPosition( cursorPos );
+        edit->setTextCursor( cursor );
     }
-}
 
-QString MainWindow::applyMacros(QString text)
-{
-    QVariantMap::const_iterator i;
-    for (i=macros.constBegin(); i != macros.constEnd(); ++i)
-        text = text.replace(i.key(), i.value().toString());
-
-    return text;
+    connect( edit, SIGNAL(textChanged()),
+             this, SLOT(onTextChanged()) );
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -156,22 +154,9 @@ void MainWindow::on_actionOpen_triggered()
     QTextStream stream( &textFile );
     QString fileText = stream.readAll();
 
-    QFileInfo fileInfo( filePath );
+    Revision *r = new Revision( filePath );
 
-    CodeEdit *edit = new CodeEdit(mdiArea);
-    edit->setPlainText( fileText );
-
-    edit->rev = new Revision( filePath );
-    revisions << edit->rev;
-
-    QMdiSubWindow *subWindow = mdiArea->addSubWindow( edit );
-    subWindow->showMaximized();
-    subWindow->setWindowTitle( fileInfo.fileName() );
-
-    shredTree->addRevision( *(edit->rev) );
-
-    connect( edit, SIGNAL(textChanged()),
-             this, SLOT(onTextChanged()) );
+    addCodeWindow(r, fileText);
 }
 
 bool MainWindow::saveFile(QString filePath, QString textContent)
@@ -293,81 +278,12 @@ void MainWindow::readPendingDatagrams()
                     }
                 }
 
-                /*
-                QGridLayout *gridL = (QGridLayout *)shredTree->layout();
-
-                for (int i=0; i<gridL->count(); i++) {
-                    QWidget *w = gridL->itemAt(i)->widget();
-                    QPushButton *b = qobject_cast<QPushButton *>(w);
-
-                    if ( b==NULL ) continue;
-
-                    if ( b->property("revID").toInt()==edShrid ) {
-                        std::cout << "found a match" << std::endl;
-
-                        int row, column, rowSpan, columnSpan;
-                        gridL->getItemPosition( i, &row, &column, &rowSpan, &columnSpan );
-
-                        //add a shred button at the next open position
-                        int col = 1;
-                        while( gridL->itemAtPosition(row,col) != 0 )
-                            col++;
-
-                        QPushButton *bS = new QPushButton( QString::number(shrid) );
-                        bS->setMaximumWidth( 20 );
-                        gridL->addWidget( bS, row, col, 1, 1 );
-
-                        connect( bS, SIGNAL(clicked()),
-                                 this, SLOT(killShred()));
-                    }
-
-                } //for all buttons in the grid
-                */
-
-                /*
-                QList<QMdiSubWindow *> windowList = mdiArea->subWindowList();
-                QList<QMdiSubWindow *>::iterator i;
-                for (i = windowList.begin(); i != windowList.end(); ++i) {
-
-                    CodeEdit *edit = (CodeEdit *) (*i)->widget();
-
-                    if ( edit->rev->getID()==edShrid ) {
-
-                        edit->rev->hasShredded = true;
-
-                        break;
-                    }
-                }
-                */
-
             } else if ( strcmp( m.AddressPattern(), "/shred/remove") ==0 ) {
 
                 osc::int32 shrid;
                 m.ArgumentStream() >> shrid >> osc::EndMessage;
 
                 std::cout << "/shred/remove," << shrid << std::endl;
-
-                /*
-                QGridLayout *gridL = (QGridLayout *)shredTree->layout();
-
-                for (int i=0; i<gridL->count(); i++) {
-                    QWidget *w = gridL->itemAt(i)->widget();
-                    QPushButton *b = qobject_cast<QPushButton *>(w);
-
-                    if ( b==NULL ) continue;
-
-                    int buttonShrid = b->text().toInt();
-
-                    if ( shrid == buttonShrid ) {
-                        gridL->removeWidget(b);
-                        delete b;
-
-                        gridL->invalidate();
-                        //gridL->layout();
-                    }
-
-                } //for all buttons in the grid
-                */
 
                 QString revStr = QString::number( shrid );
 
@@ -399,24 +315,6 @@ void MainWindow::readPendingDatagrams()
     }
 }
 
-//TODO refactor below methods
-//TODO might not be used anymore
-void MainWindow::killShred()
-{
-    QPushButton *b1 = (QPushButton *) QObject::sender();
-    osc::int32 shrid = b1->text().toInt();
-
-    char buffer[OUTPUT_BUFFER_SIZE];
-    osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
-
-    p << osc::BeginMessage( "/shred/remove" ) <<
-            shrid << osc::EndMessage;
-
-    //outSocket.Send( p.Data(), p.Size() );
-    outSocket->writeDatagram( p.Data(), p.Size(), QHostAddress::LocalHost, PORT_SEND );
-
-}
-
 void MainWindow::killShred(QTreeWidgetItem *item)
 {
     int shrid = item->text(0).toInt();
@@ -429,6 +327,11 @@ void MainWindow::killShred(QTreeWidgetItem *item)
 
     //outSocket.Send( p.Data(), p.Size() );
     outSocket->writeDatagram( p.Data(), p.Size(), QHostAddress::LocalHost, PORT_SEND );
+}
+
+void MainWindow::selectRevision(Revision *r)
+{
+    mdiArea->setActiveSubWindow( subWindowMap[r] );
 }
 
 void MainWindow::on_actionSave_triggered()
@@ -463,53 +366,14 @@ void MainWindow::onTextChanged()
     //if hasShredded and text changed (now!) make a new revision
     if ( edit->rev->hasShredded ){
 
-        QString filePath = edit->rev->srcFilePath;
-
         //get info from the parent revision
         QString bufferTextChanged = edit->toPlainText();
         int cursorPos = edit->textCursor().position();
 
-        CodeEdit *edit2 = new CodeEdit(mdiArea);
-        edit2->setPlainText( bufferTextChanged );
+        //new revision
+        Revision *r = new Revision( edit->rev );
 
-        QTextCursor cursor = edit2->textCursor();
-        cursor.setPosition( cursorPos );
-        edit2->setTextCursor( cursor );
-
-        edit2->rev = new Revision( edit->rev );
-        revisions << edit2->rev;
-
-        QMdiSubWindow *subWindow = mdiArea->addSubWindow( edit2 );
-        subWindow->showMaximized();
-        subWindow->setWindowTitle( edit2->rev->getDisplayName() );
-
-        /*
-        QPushButton *b1 = new QPushButton( edit2->rev->getBufferName() );
-        b1->setMaximumHeight( 40 );
-        b1->setProperty( "revID", edit2->rev->getID() );
-
-        QGridLayout *gridL = (QGridLayout *)shredTree->layout();
-        gridL->addWidget(b1,++nBuffers,0, Qt::AlignLeft|Qt::AlignTop);
-        gridL->setRowStretch(nBuffers, 0);
-
-        //connect this to focus changes in mdiArea
-        connect( subWindow, SIGNAL(aboutToActivate()),
-                 b1, SLOT(animateClick()) );
-
-        //also connect buttons to activate subwindows
-        connect( b1, SIGNAL(clicked()),
-                 subWindow, SLOT(setFocus()));
-
-        connect( edit2, SIGNAL(textChanged()),
-                 this, SLOT(onTextChanged()) );
-
-        //add a widget to take up the rest of the space
-        QWidget *spacer = new QWidget();
-        gridL->addWidget(spacer,nBuffers+1,0,-1,0);
-        gridL->setRowStretch(nBuffers+1, 1000);
-        */
-
-        shredTree->addRevision( *(edit2->rev) );
+        addCodeWindow( r, bufferTextChanged, cursorPos );
 
         //disconnect textChanged() for parent
         disconnect(edit, SIGNAL(textChanged()),
@@ -518,9 +382,6 @@ void MainWindow::onTextChanged()
         connect( edit, SIGNAL(textChanged()),
                  this, SLOT(onTextChanged()));
 
-        //connect textChanged() for child
-        connect( edit2, SIGNAL(textChanged()),
-                 this, SLOT(onTextChanged()) );
     }
 
 }

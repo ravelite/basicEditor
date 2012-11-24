@@ -22,14 +22,17 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    void addCodeWindow(Revision *r, QString fileText, int cursorPos);
+
 public slots:
     void killShred(QTreeWidgetItem *item);
+
+    void selectRevision(Revision *r);
 
 private slots:
     void on_actionOpen_triggered();
     void on_actionAdd_Shred_triggered();
     void readPendingDatagrams();
-    void killShred();
     void on_actionSave_triggered();
     void onTextChanged();
     void on_actionNew_triggered();
@@ -41,6 +44,8 @@ private:
     QMdiArea *mdiArea;
     //QWidget *shredTree;
     RevTree *shredTree;
+
+    QMap<Revision *,QMdiSubWindow *> subWindowMap;
 
     QUdpSocket *udpSocket;
     QString sessionName;
