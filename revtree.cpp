@@ -23,6 +23,7 @@ void RevTree::addRevision(Revision *r)
 
     //add the mapping for this item
     itemMap[item] = r;
+    itemMap2[r] = item;
 }
 
 void RevTree::removeRevision(Revision *r)
@@ -31,6 +32,7 @@ void RevTree::removeRevision(Revision *r)
 
 void RevTree::selectRevision(Revision *r)
 {
+    setCurrentItem( itemMap2[r] );
 }
 
 void RevTree::addProcess(Process *p)

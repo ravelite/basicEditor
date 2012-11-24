@@ -55,6 +55,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->setCentralWidget(mdiArea);
 
+    //forward selection changes in mdi
+    connect( mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)),
+             this, SLOT(fireSelectRevision(QMdiSubWindow*)) );
+
     shredTree = new RevTree();
 
     //TODO: make shredTree use its generic interface
@@ -126,8 +130,9 @@ void MainWindow::addCodeWindow(Revision *r, QString fileText, int cursorPos = 0)
 
     shredTree->addRevision( edit->rev );
 
-    //add to subwindow map
+    //add to subwindow maps
     subWindowMap[r] = subWindow;
+    subWindowMap2[subWindow] = r;
 
     if ( cursorPos > 0 )
     {
@@ -332,6 +337,11 @@ void MainWindow::killShred(QTreeWidgetItem *item)
 void MainWindow::selectRevision(Revision *r)
 {
     mdiArea->setActiveSubWindow( subWindowMap[r] );
+}
+
+void MainWindow::fireSelectRevision(QMdiSubWindow *sub)
+{
+    shredTree->selectRevision( subWindowMap2[sub] );
 }
 
 void MainWindow::on_actionSave_triggered()

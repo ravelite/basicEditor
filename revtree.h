@@ -31,6 +31,7 @@ signals:
 
 private:
     QMap<QTreeWidgetItem *, Revision *> itemMap;
+    QMap<Revision *, QTreeWidgetItem *> itemMap2;
 
 };
 

@@ -28,6 +28,7 @@ public slots:
     void killShred(QTreeWidgetItem *item);
 
     void selectRevision(Revision *r);
+    void fireSelectRevision(QMdiSubWindow *sub);
 
 private slots:
     void on_actionOpen_triggered();
@@ -46,6 +47,7 @@ private:
     RevTree *shredTree;
 
     QMap<Revision *,QMdiSubWindow *> subWindowMap;
+    QMap<QMdiSubWindow *, Revision *> subWindowMap2;
 
     QUdpSocket *udpSocket;
     QString sessionName;
