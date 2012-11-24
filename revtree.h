@@ -30,8 +30,8 @@ signals:
     void removedProcess( Process *p );
 
 private:
-    QMap<QTreeWidgetItem *, Revision *> itemMap;
-    QMap<Revision *, QTreeWidgetItem *> itemMap2;
+    QMap<Revision *, QTreeWidgetItem *> itemMap;
+    QMap<QTreeWidgetItem *, Revision *> itemMapRight;
 
 };
 

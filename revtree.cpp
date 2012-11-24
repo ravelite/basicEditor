@@ -9,6 +9,10 @@ RevTree::RevTree(QWidget *parent) :
     //connect to item->pRev mapping
     connect( this, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
              this, SLOT(fireSelectedRevision(QTreeWidgetItem*)) );
+
+    //also for single clicks
+    connect( this, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
+             this, SLOT(fireSelectedRevision(QTreeWidgetItem*)) );
 }
 
 void RevTree::addRevision(Revision *r)
@@ -22,8 +26,8 @@ void RevTree::addRevision(Revision *r)
     addTopLevelItem(item);
 
     //add the mapping for this item
-    itemMap[item] = r;
-    itemMap2[r] = item;
+    itemMap[r] = item;
+    itemMapRight[item] = r;
 }
 
 void RevTree::removeRevision(Revision *r)
@@ -32,7 +36,7 @@ void RevTree::removeRevision(Revision *r)
 
 void RevTree::selectRevision(Revision *r)
 {
-    setCurrentItem( itemMap2[r] );
+    setCurrentItem( itemMap[r] );
 }
 
 void RevTree::addProcess(Process *p)
@@ -45,7 +49,7 @@ void RevTree::removeProcess(Process *p)
 
 void RevTree::fireSelectedRevision(QTreeWidgetItem *item)
 {
-    selectedRevision(itemMap[item]);
+    selectedRevision( itemMapRight[item] );
 }
 
 

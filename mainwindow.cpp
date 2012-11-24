@@ -30,6 +30,8 @@
 
 //TODO: separate appLogic with GUI
 
+//TODO: move most of the subwindow logic into subclass of mdiArea
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
