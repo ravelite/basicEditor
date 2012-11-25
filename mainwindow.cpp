@@ -63,10 +63,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     shredTree = new RevTree();
 
-    //TODO: make shredTree use its generic interface
     //connect shredTree for delete messages
-    connect( shredTree, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
-             this, SLOT(killShred(QTreeWidgetItem*)) );
+    connect( shredTree, SIGNAL(requestRemoveProcess(Process*)),
+             this, SLOT(killProcess(Process*)) );
 
     //make codeWindows respond to shredTree selection
     connect( shredTree, SIGNAL(selectedRevision(Revision*)),
@@ -264,6 +263,12 @@ void MainWindow::readPendingDatagrams()
                         //mark revision as shredded
                         r->hasShredded = true;
 
+                        //make a new process and add to display
+                        Process *p = new Process(r, shrid);
+
+                        shredTree->addProcess(p);
+
+                        /*
                         QString revStr = QString::number( r->getID() );
 
                         QList<QTreeWidgetItem *> res =
@@ -279,7 +284,7 @@ void MainWindow::readPendingDatagrams()
                             QTreeWidgetItem *item =
                                     new QTreeWidgetItem(str, RevTree::PROC_TYPE);
                             res[0]->addChild( item );
-                        }
+                        }*/
                     }
                 }
 
@@ -320,18 +325,36 @@ void MainWindow::readPendingDatagrams()
     }
 }
 
-void MainWindow::killShred(QTreeWidgetItem *item)
+void MainWindow::killChuckShred(Process *p)
 {
-    int shrid = item->text(0).toInt();
+    //copied from above, TODO refactor this
+    int shrid = p->id;
 
     char buffer[OUTPUT_BUFFER_SIZE];
-    osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
+    osc::OutboundPacketStream pstream( buffer, OUTPUT_BUFFER_SIZE );
 
-    p << osc::BeginMessage( "/shred/remove" ) <<
+    pstream << osc::BeginMessage( "/shred/remove" ) <<
             shrid << osc::EndMessage;
 
     //outSocket.Send( p.Data(), p.Size() );
-    outSocket->writeDatagram( p.Data(), p.Size(), QHostAddress::LocalHost, PORT_SEND );
+    outSocket->writeDatagram( pstream.Data(), pstream.Size(),
+                              QHostAddress::LocalHost, PORT_SEND );
+}
+
+void MainWindow::killProcess(Process *p)
+{
+    if( p->rev->srcLang == Revision::SRCLANG_CHUCK )
+    {
+        killChuckShred( p );
+    }
+    else if ( p->rev->srcLang == Revision::SRCLANG_SC )
+    {
+
+    }
+    else {
+
+    }
+
 }
 
 void MainWindow::selectRevision(Revision *r)

@@ -1,5 +1,5 @@
 #include "process.h"
 
-Process::Process()
-{
-}
+Process::Process(Revision *r, int id) :
+    rev(r), id(id)
+{}

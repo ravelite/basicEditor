@@ -25,10 +25,11 @@ public:
     void addCodeWindow(Revision *r, QString fileText, int cursorPos);
 
 public slots:
-    void killShred(QTreeWidgetItem *item);
-
+    void killChuckShred(Process *p);
     void selectRevision(Revision *r);
     void fireSelectRevision(QMdiSubWindow *sub);
+
+    void killProcess(Process *p);
 
 private slots:
     void on_actionOpen_triggered();

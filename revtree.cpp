@@ -44,6 +44,17 @@ void RevTree::selectRevision(Revision *r)
 
 void RevTree::addProcess(Process *p)
 {
+    QStringList str;
+    str << QString::number( p->id );
+    str << "";
+
+    QTreeWidgetItem *item =
+            new QTreeWidgetItem(str, RevTree::PROC_TYPE);
+    revMap[p->rev]->addChild( item );
+
+    //add the mapping for this item
+    procMap[p] = item;
+    procMapRight[item] = p;
 }
 
 void RevTree::removeProcess(Process *p)
