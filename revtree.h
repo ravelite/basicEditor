@@ -13,6 +13,10 @@ class RevTree : public QTreeWidget, public Revui
 public:
     RevTree(QWidget *parent = 0);
 
+    static const int REV_TYPE;
+    static const int PROC_TYPE;
+
+
 public slots:
     void addRevision( Revision *r );
     void removeRevision( Revision *r );
@@ -20,7 +24,8 @@ public slots:
     void addProcess( Process *p );
     void removeProcess( Process *p );
 
-    void fireSelectedRevision(QTreeWidgetItem *);
+    void itemActivate(QTreeWidgetItem *item);
+    void itemClick(QTreeWidgetItem *item);
 
 signals:
     void addedRevision( Revision *r );
@@ -30,8 +35,11 @@ signals:
     void removedProcess( Process *p );
 
 private:
-    QMap<Revision *, QTreeWidgetItem *> itemMap;
-    QMap<QTreeWidgetItem *, Revision *> itemMapRight;
+    QMap<Revision *, QTreeWidgetItem *> revMap;
+    QMap<QTreeWidgetItem *, Revision *> revMapRight;
+
+    QMap<Process *, QTreeWidgetItem *> procMap;
+    QMap<QTreeWidgetItem *, Process *> procMapRight;
 
 };
 

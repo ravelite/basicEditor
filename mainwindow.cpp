@@ -277,10 +277,8 @@ void MainWindow::readPendingDatagrams()
                             str << QString::number( shrid );
                             str << "";
                             QTreeWidgetItem *item =
-                                    new QTreeWidgetItem(str);
+                                    new QTreeWidgetItem(str, RevTree::PROC_TYPE);
                             res[0]->addChild( item );
-
-
                         }
                     }
                 }
