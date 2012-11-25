@@ -16,7 +16,6 @@ public:
     static const int REV_TYPE;
     static const int PROC_TYPE;
 
-
 public slots:
     void addRevision( Revision *r );
     void removeRevision( Revision *r );
@@ -32,7 +31,9 @@ signals:
     void removedRevision( Revision *r );
     void selectedRevision( Revision *r );
     void addedProcess( Process *p );
-    void removedProcess( Process *p );
+    //void removedProcess( Process *p );
+
+    void requestRemoveProcess( Process *p );
 
 private:
     QMap<Revision *, QTreeWidgetItem *> revMap;

@@ -55,7 +55,7 @@ void RevTree::itemActivate(QTreeWidgetItem *item)
     if ( item->type() == REV_TYPE )
         selectedRevision( revMapRight[item] );
     else if ( item->type() == PROC_TYPE )
-        removedProcess( procMapRight[item] );
+        requestRemoveProcess( procMapRight[item] );
 
 }
 

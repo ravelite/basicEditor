@@ -23,7 +23,7 @@ signals:
     virtual void removedRevision( Revision *r ) = 0;
     virtual void selectedRevision( Revision *r ) = 0;
     virtual void addedProcess( Process *p ) = 0;
-    virtual void removedProcess( Process *p ) = 0;
+    virtual void requestRemoveProcess( Process *p ) = 0;
 
 };
 

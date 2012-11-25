@@ -5,6 +5,10 @@
 //declare the static object
 QMap<QString, int> Revision::maxPathRevision;
 
+const int Revision::SRCLANG_CHUCK = 1;
+const int Revision::SRCLANG_SC = 2;
+const int Revision::SRCLANG_UNKNOWN = 3;
+
 /* A new revision here */
 Revision::Revision(QString srcFilePath) :
     parent(NULL),
@@ -12,7 +16,8 @@ Revision::Revision(QString srcFilePath) :
     textChangedSinceSave(false),
     revNum(0),
     hasShredded(false),
-    hasSaved(false)
+    hasSaved(false),
+    srcLang( chooseSrcLang(srcFilePath) )
 {
     //assume no other revisions from this src path
     maxPathRevision[ srcFilePath ] = 0;
@@ -25,7 +30,8 @@ Revision::Revision(Revision *prev) :
     textChangedSinceSave( true ),
     revNum( ++maxPathRevision[ srcFilePath ] ),
     hasShredded( false ),
-    hasSaved(false)
+    hasSaved(false),
+    srcLang( prev->srcLang ) //srcLang is the same
 {
     parent->addChild(this);
 }
@@ -83,4 +89,19 @@ int Revision::getID()
 void Revision::addChild(Revision *child)
 {
     children << child;
+}
+
+int Revision::chooseSrcLang(QString srcFilePath)
+{
+    QFileInfo info(srcFilePath);
+
+    if ( info.suffix().compare("ck")==0 ) {
+        return SRCLANG_CHUCK;
+    }
+    else if ( info.suffix().compare("sc")==0 ) {
+        return SRCLANG_SC;
+    }
+    else {
+        return SRCLANG_UNKNOWN;
+    }
 }
