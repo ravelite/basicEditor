@@ -9,6 +9,7 @@
 #include "revision.h"
 #include "revui.h"
 #include "revtree.h"
+#include "process.h"
 
 namespace Ui {
 class MainWindow;
@@ -55,6 +56,7 @@ private:
     QVariantMap macros;
 
     QList<Revision *> revisions;
+    QList<Process *> processes;
 
     //a sequence number for the OSC requests
     int seqRequest;
@@ -67,6 +69,8 @@ private:
     QString applyMacros(QString text);
     void createSessionDirectory();
     void loadMacros();
+    Revision *findRevision(int revId);
+    Process *findProcess(int procId, int procSrcType);
 };
 
 #endif // MAINWINDOW_H

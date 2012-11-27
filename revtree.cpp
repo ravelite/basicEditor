@@ -35,6 +35,7 @@ void RevTree::addRevision(Revision *r)
 
 void RevTree::removeRevision(Revision *r)
 {
+    //remove the mappings
 }
 
 void RevTree::selectRevision(Revision *r)
@@ -57,8 +58,18 @@ void RevTree::addProcess(Process *p)
     procMapRight[item] = p;
 }
 
+//TODO: I think this process is similir to add/removeRevision
+//maybe we can refactor and use the same
 void RevTree::removeProcess(Process *p)
 {
+    //remove the mapping
+    QTreeWidgetItem *item = procMap[p];
+
+    procMap.remove(p);
+    procMapRight.remove(item);
+
+    //remove it from the UI
+    delete item;
 }
 
 void RevTree::itemActivate(QTreeWidgetItem *item)

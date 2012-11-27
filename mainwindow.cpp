@@ -162,7 +162,7 @@ void MainWindow::on_actionOpen_triggered()
 
     Revision *r = new Revision( filePath );
 
-    addCodeWindow(r, fileText);
+    addCodeWindow(r, fileText, 0);
 }
 
 bool MainWindow::saveFile(QString filePath, QString textContent)
@@ -219,8 +219,30 @@ void MainWindow::shredFile(QString filePath, int revID) {
     outSocket->writeDatagram( p.Data(), p.Size(), QHostAddress::LocalHost, PORT_SEND );
 }
 
+Revision * MainWindow::findRevision(int revId) {
+    Revision *curr;
+    foreach (curr, revisions) {
+        if ( curr->getID() == revId )
+            return curr;
+    }
+    //in case we don't find anything
+    return NULL;
+}
+
+Process * MainWindow::findProcess(int procId, int srcLang) {
+    Process *curr;
+    foreach (curr, processes) {
+        if ( curr->id == procId &&
+             curr->rev->srcLang == srcLang )
+            return curr;
+    }
+    //in case we don't find anything
+    return NULL;
+}
+
 void MainWindow::readPendingDatagrams()
 {
+    //TODO: make a handler for the bodies under here
     while (udpSocket->hasPendingDatagrams()) {
         QByteArray datagram;
         datagram.resize(udpSocket->pendingDatagramSize());
@@ -247,45 +269,18 @@ void MainWindow::readPendingDatagrams()
 
                 std::cout << "/shred/new," << edShrid << "," << shrid << std::endl;
 
-                //go through all revisions looking for revID
-                QList<Revision *>::const_iterator curr;
-                for (curr=revisions.constBegin(); curr!=revisions.constEnd();
-                     ++curr)
-                {
-                    Revision *r = *curr;
+                Revision *r = findRevision( edShrid );
+                if (r!=NULL) {
 
-                    //std::cout << "Rev " << r->getID() << std::endl;
+                    //mark revision as shredded
+                    r->hasShredded = true;
 
-                    if ( edShrid==r->getID() ) {
+                    //make a new process and add to display
+                    Process *p = new Process(r, shrid);
 
-                        //std::cout << "Found the revision." << std::endl;
+                    processes << p; //keep track of it
 
-                        //mark revision as shredded
-                        r->hasShredded = true;
-
-                        //make a new process and add to display
-                        Process *p = new Process(r, shrid);
-
-                        shredTree->addProcess(p);
-
-                        /*
-                        QString revStr = QString::number( r->getID() );
-
-                        QList<QTreeWidgetItem *> res =
-                        shredTree->findItems(revStr, Qt::MatchExactly, 1);
-
-                        if ( res.size() > 0 ) {
-
-                            //std::cout << "Found the widgetItem." << std::endl;
-
-                            QStringList str;
-                            str << QString::number( shrid );
-                            str << "";
-                            QTreeWidgetItem *item =
-                                    new QTreeWidgetItem(str, RevTree::PROC_TYPE);
-                            res[0]->addChild( item );
-                        }*/
-                    }
+                    shredTree->addProcess(p);
                 }
 
             } else if ( strcmp( m.AddressPattern(), "/shred/remove") ==0 ) {
@@ -295,19 +290,11 @@ void MainWindow::readPendingDatagrams()
 
                 std::cout << "/shred/remove," << shrid << std::endl;
 
-                QString revStr = QString::number( shrid );
+                Process *p = findProcess(shrid, Revision::SRCLANG_CHUCK);
+                if ( p!=NULL ) {
+                    processes.removeOne(p);
 
-                QList<QTreeWidgetItem *> res =
-                shredTree->findItems(revStr, Qt::MatchExactly|Qt::MatchRecursive, 0);
-
-                std::cout << "trying to remove: " << shrid << std::endl;
-                std::cout << "found items to remove: " << res.size() << std::endl;
-
-                if ( res.size() > 0 ) {
-                    //shredTree->removeItemWidget(res[0], 0);
-
-                    //seems evil, but I guess this is the qt way
-                    delete res[0];
+                    shredTree->removeProcess(p);
                 }
 
             } else { //any other message
