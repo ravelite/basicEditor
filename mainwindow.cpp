@@ -119,22 +119,21 @@ void MainWindow::createSessionDirectory()
 
 void MainWindow::addCodeWindow(Revision *r, QString fileText, int cursorPos = 0)
 {
+    //setup the widget
     CodeEdit *edit = new CodeEdit(mdiArea);
     edit->setPlainText( fileText );
-
     edit->rev = r;
-    revisions << edit->rev;
 
+    //setup the subwindow
     QMdiSubWindow *subWindow = mdiArea->addSubWindow( edit );
     subWindow->showMaximized();
     subWindow->setWindowTitle( edit->rev->getBufferName() );
-
-    shredTree->addRevision( edit->rev );
 
     //add to subwindow maps
     subWindowMap[r] = subWindow;
     subWindowMap2[subWindow] = r;
 
+    //save the position, so that it may be restored
     if ( cursorPos > 0 )
     {
         QTextCursor cursor = edit->textCursor();
@@ -142,8 +141,16 @@ void MainWindow::addCodeWindow(Revision *r, QString fileText, int cursorPos = 0)
         edit->setTextCursor( cursor );
     }
 
+    //track changes in this buffer
     connect( edit, SIGNAL(textChanged()),
              this, SLOT(onTextChanged()) );
+}
+
+void MainWindow::addRevisionMain(Revision *r, QString fileText, int cursorPos)
+{
+    revisions << r; //track the new revision
+    addCodeWindow(r, fileText, cursorPos); //make a code window
+    shredTree->addRevision(r); //add to tree UI
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -161,8 +168,7 @@ void MainWindow::on_actionOpen_triggered()
     QString fileText = stream.readAll();
 
     Revision *r = new Revision( filePath );
-
-    addCodeWindow(r, fileText, 0);
+    addRevisionMain(r, fileText, 0);
 }
 
 bool MainWindow::saveFile(QString filePath, QString textContent)
@@ -392,8 +398,7 @@ void MainWindow::onTextChanged()
 
         //new revision
         Revision *r = new Revision( edit->rev );
-
-        addCodeWindow( r, bufferTextChanged, cursorPos );
+        addRevisionMain(r, bufferTextChanged, cursorPos);
 
         //disconnect textChanged() for parent
         disconnect(edit, SIGNAL(textChanged()),

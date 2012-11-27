@@ -71,6 +71,7 @@ private:
     void loadMacros();
     Revision *findRevision(int revId);
     Process *findProcess(int procId, int procSrcType);
+    void addRevisionMain(Revision *r, QString fileText, int cursorPos);
 };
 
 #endif // MAINWINDOW_H
