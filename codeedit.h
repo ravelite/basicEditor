@@ -2,7 +2,6 @@
 #define CODEEDIT_H
 
 #include <QTextEdit>
-
 #include "revision.h"
 
 class CodeEdit : public QTextEdit

@@ -10,6 +10,7 @@
 #include "revui.h"
 #include "revtree.h"
 #include "process.h"
+#include "codearea.h"
 
 namespace Ui {
 class MainWindow;
@@ -23,12 +24,12 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void addCodeWindow(Revision *r, QString fileText, int cursorPos);
+    //void addCodeWindow(Revision *r, QString fileText, int cursorPos);
 
 public slots:
     void killChuckShred(Process *p);
-    void selectRevision(Revision *r);
-    void fireSelectRevision(QMdiSubWindow *sub);
+    //void selectRevision(Revision *r);
+    //void fireSelectRevision(QMdiSubWindow *sub);
 
     void killProcess(Process *p);
 
@@ -44,12 +45,9 @@ private:
     Ui::MainWindow *ui;
 
     QUdpSocket *outSocket;
-    QMdiArea *mdiArea;
+    CodeArea *codeArea;
     //QWidget *shredTree;
     RevTree *shredTree;
-
-    QMap<Revision *,QMdiSubWindow *> subWindowMap;
-    QMap<QMdiSubWindow *, Revision *> subWindowMap2;
 
     QUdpSocket *udpSocket;
     QString sessionName;

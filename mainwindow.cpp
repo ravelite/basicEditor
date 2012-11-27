@@ -13,15 +13,14 @@
 #include <QDockWidget>
 #include <QScrollArea>
 #include <QGridLayout>
+#include <QDateTime>
 
 #include <QTextEdit>
-#include <QDateTime>
 #include "codeedit.h"
 #include <iostream>
 
-#include <QTreeWidgetItem>
-
 #include "revtree.h"
+#include "codearea.h"
 
 #define PORT_SEND 7000
 #define PORT_RECV 7001
@@ -29,7 +28,6 @@
 #define ADDRESS "127.0.0.1"
 
 //TODO: separate appLogic with GUI
-
 //TODO: move most of the subwindow logic into subclass of mdiArea
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -37,29 +35,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     outSocket( new QUdpSocket(this) ),
     udpSocket( new QUdpSocket(this) ),
-    mdiArea( new QMdiArea(this) ),
+    codeArea( new CodeArea(this) ),
     seqRequest( 0 ), nBuffers( 0 )
 {
     ui->setupUi(this);
 
-    QAction *leftAction = new QAction(mdiArea);
-    leftAction->setShortcut( tr("Alt+Left") );
-    QAction *rightAction = new QAction(mdiArea);
-    rightAction->setShortcut( tr("Alt+Right") );
-
-    connect( leftAction, SIGNAL(triggered()),
-             mdiArea, SLOT(activatePreviousSubWindow()) );
-    connect( rightAction, SIGNAL(triggered()),
-             mdiArea, SLOT(activateNextSubWindow()) );
-
-    mdiArea->addAction(leftAction);
-    mdiArea->addAction(rightAction);
-
-    this->setCentralWidget(mdiArea);
-
-    //forward selection changes in mdi
-    connect( mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)),
-             this, SLOT(fireSelectRevision(QMdiSubWindow*)) );
+    this->setCentralWidget(codeArea);
 
     shredTree = new RevTree();
 
@@ -69,7 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //make codeWindows respond to shredTree selection
     connect( shredTree, SIGNAL(selectedRevision(Revision*)),
-             this, SLOT(selectRevision(Revision*)) );
+             codeArea, SLOT(selectRevision(Revision*)) );
 
     QDockWidget *dock = new QDockWidget();
     dock->setWidget( shredTree );
@@ -88,11 +69,12 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete mdiArea;
+    delete codeArea;
     delete udpSocket;
     delete outSocket;
 }
 
+//TODO: this should go to a separate engine file
 void MainWindow::sendTestMessage() {
 
     //and send a test/wakeup message
@@ -117,39 +99,10 @@ void MainWindow::createSessionDirectory()
     }
 }
 
-void MainWindow::addCodeWindow(Revision *r, QString fileText, int cursorPos = 0)
-{
-    //setup the widget
-    CodeEdit *edit = new CodeEdit(mdiArea);
-    edit->setPlainText( fileText );
-    edit->rev = r;
-
-    //setup the subwindow
-    QMdiSubWindow *subWindow = mdiArea->addSubWindow( edit );
-    subWindow->showMaximized();
-    subWindow->setWindowTitle( edit->rev->getBufferName() );
-
-    //add to subwindow maps
-    subWindowMap[r] = subWindow;
-    subWindowMap2[subWindow] = r;
-
-    //save the position, so that it may be restored
-    if ( cursorPos > 0 )
-    {
-        QTextCursor cursor = edit->textCursor();
-        cursor.setPosition( cursorPos );
-        edit->setTextCursor( cursor );
-    }
-
-    //track changes in this buffer
-    connect( edit, SIGNAL(textChanged()),
-             this, SLOT(onTextChanged()) );
-}
-
 void MainWindow::addRevisionMain(Revision *r, QString fileText, int cursorPos)
 {
     revisions << r; //track the new revision
-    addCodeWindow(r, fileText, cursorPos); //make a code window
+    codeArea->addCodeWindow(r, fileText, cursorPos); //make a code window
     shredTree->addRevision(r); //add to tree UI
 }
 
@@ -188,7 +141,7 @@ bool MainWindow::saveFile(QString filePath, QString textContent)
 void MainWindow::on_actionAdd_Shred_triggered()
 {
     //get the text from the active buffer (but also the filename)
-    CodeEdit *edit = (CodeEdit *) mdiArea->focusWidget();
+    CodeEdit *edit = (CodeEdit *) codeArea->focusWidget();
 
     //QString filePath = edit->rev->getLastSavedPath();
 
@@ -350,19 +303,9 @@ void MainWindow::killProcess(Process *p)
 
 }
 
-void MainWindow::selectRevision(Revision *r)
-{
-    mdiArea->setActiveSubWindow( subWindowMap[r] );
-}
-
-void MainWindow::fireSelectRevision(QMdiSubWindow *sub)
-{
-    shredTree->selectRevision( subWindowMap2[sub] );
-}
-
 void MainWindow::on_actionSave_triggered()
 {
-    QMdiSubWindow *sub = mdiArea->currentSubWindow();
+    QMdiSubWindow *sub = codeArea->currentSubWindow();
 
     if ( sub==NULL ) return;
 

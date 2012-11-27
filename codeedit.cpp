@@ -1,7 +1,5 @@
 #include "codeedit.h"
-
 #include <QWheelEvent>
-
 #include <iostream>
 
 CodeEdit::CodeEdit(QWidget *parent) :
