@@ -52,6 +52,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( shredTree, SIGNAL(selectedRevision(Revision*)),
              codeArea, SLOT(selectRevision(Revision*)) );
 
+    //when revisions created by codeArea, add them
+    connect( codeArea, SIGNAL(notifyNewRevision(Revision*)),
+             this, SLOT(addRevisionMain(Revision*)) );
+
     QDockWidget *dock = new QDockWidget();
     dock->setWidget( shredTree );
     addDockWidget( Qt::RightDockWidgetArea, dock );
@@ -99,10 +103,9 @@ void MainWindow::createSessionDirectory()
     }
 }
 
-void MainWindow::addRevisionMain(Revision *r, QString fileText, int cursorPos)
+void MainWindow::addRevisionMain(Revision *r)
 {
     revisions << r; //track the new revision
-    codeArea->addCodeWindow(r, fileText, cursorPos); //make a code window
     shredTree->addRevision(r); //add to tree UI
 }
 
@@ -121,7 +124,8 @@ void MainWindow::on_actionOpen_triggered()
     QString fileText = stream.readAll();
 
     Revision *r = new Revision( filePath );
-    addRevisionMain(r, fileText, 0);
+    codeArea->addCodeWindow(r, fileText, 0);
+    addRevisionMain(r);
 }
 
 bool MainWindow::saveFile(QString filePath, QString textContent)
@@ -143,7 +147,7 @@ void MainWindow::on_actionAdd_Shred_triggered()
     //get the text from the active buffer (but also the filename)
     CodeEdit *edit = (CodeEdit *) codeArea->focusWidget();
 
-    //QString filePath = edit->rev->getLastSavedPath();
+    if ( edit == NULL ) return;
 
     QString sessionRel = sessionName + "/" + edit->rev->getBufferName();
 
@@ -317,41 +321,6 @@ void MainWindow::on_actionSave_triggered()
         edit->rev->hasSaved = true;
         sub->setWindowTitle( edit->rev->getDisplayName() );
     }
-}
-
-void MainWindow::onTextChanged()
-{
-    CodeEdit *edit = (CodeEdit *) QObject::sender();
-    QMdiSubWindow *sub = (QMdiSubWindow *)edit->parent();
-
-    if ( !edit->rev->textChangedSinceSave ) {
-
-        edit->rev->textChangedSinceSave = true;
-        sub->setWindowTitle( edit->rev->getDisplayName() );
-
-        //TODO: also update in shredTree UI
-    }
-
-    //if hasShredded and text changed (now!) make a new revision
-    if ( edit->rev->hasShredded ){
-
-        //get info from the parent revision
-        QString bufferTextChanged = edit->toPlainText();
-        int cursorPos = edit->textCursor().position();
-
-        //new revision
-        Revision *r = new Revision( edit->rev );
-        addRevisionMain(r, bufferTextChanged, cursorPos);
-
-        //disconnect textChanged() for parent
-        disconnect(edit, SIGNAL(textChanged()),
-                   this, SLOT(onTextChanged()));
-        edit->undo(); //undo previous edit in old buffer
-        connect( edit, SIGNAL(textChanged()),
-                 this, SLOT(onTextChanged()));
-
-    }
-
 }
 
 void MainWindow::on_actionNew_triggered()

@@ -24,13 +24,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    //void addCodeWindow(Revision *r, QString fileText, int cursorPos);
-
 public slots:
     void killChuckShred(Process *p);
-    //void selectRevision(Revision *r);
-    //void fireSelectRevision(QMdiSubWindow *sub);
-
+    void addRevisionMain(Revision *r);
     void killProcess(Process *p);
 
 private slots:
@@ -38,7 +34,6 @@ private slots:
     void on_actionAdd_Shred_triggered();
     void readPendingDatagrams();
     void on_actionSave_triggered();
-    void onTextChanged();
     void on_actionNew_triggered();
 
 private:
@@ -69,7 +64,6 @@ private:
     void loadMacros();
     Revision *findRevision(int revId);
     Process *findProcess(int procId, int procSrcType);
-    void addRevisionMain(Revision *r, QString fileText, int cursorPos);
 };
 
 #endif // MAINWINDOW_H
