@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     process.cpp \
     revtree.cpp \
     mw_macros.cpp \
-    codearea.cpp
+    codearea.cpp \
+    engine.cpp
 
 HEADERS  += mainwindow.h \
     ../oscpack/ip/TimerListener.h \
@@ -41,7 +42,8 @@ HEADERS  += mainwindow.h \
     revui.h \
     process.h \
     revtree.h \
-    codearea.h
+    codearea.h \
+    engine.h
 
 FORMS    += mainwindow.ui
 
