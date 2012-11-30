@@ -59,6 +59,10 @@ MainWindow::MainWindow(QWidget *parent) :
     QDockWidget *dock = new QDockWidget();
     dock->setWidget( shredTree );
     addDockWidget( Qt::RightDockWidgetArea, dock );
+    //addDockWidget( Qt::NoDockWidgetArea, dock );
+
+    dock->setFloating(true);
+    dock->move( frameGeometry().topRight() );
 
     udpSocket->bind(QHostAddress::LocalHost, PORT_RECV);
 
