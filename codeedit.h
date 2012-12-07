@@ -12,14 +12,24 @@ public:
 
     Revision *rev;
 
+    void listenChanges();
+    void undoChanges();
+    void ignoreChanges();
+
 protected:
     void wheelEvent(QWheelEvent *e);
+
     //void inputMethodEvent(QInputMethodEvent *ev);
     //void changeEvent(QEvent *e);
+    void keyPressEvent ( QKeyEvent * e );
     
 signals:
     
 public slots:
+    void onTextChanged();
+
+private:
+    void updateTitle();
     
 };
 

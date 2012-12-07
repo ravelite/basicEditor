@@ -24,9 +24,6 @@ CodeArea::CodeArea(QWidget *parent) :
     //forward selection changes in mdi
     connect( this, SIGNAL(subWindowActivated(QMdiSubWindow*)),
              this, SLOT(fireSelectRevision(QMdiSubWindow*)) );
-
-    //BUG: something missing for selection changes
-    //maybe because the onTextChanged is in the other class
 }
 
 void CodeArea::addCodeWindow(Revision *r, QString fileText, int cursorPos = 0)
@@ -53,49 +50,16 @@ void CodeArea::addCodeWindow(Revision *r, QString fileText, int cursorPos = 0)
         edit->setTextCursor( cursor );
     }
 
-    //track changes in this buffer
-    connect( edit, SIGNAL(textChanged()),
-             this, SLOT(onTextChanged()) );
+    notifyNewRevision(r);
 
-    //sets the focus after creating new window
-    edit->setFocus();
-}
+    edit->focusWidget();
 
-void CodeArea::onTextChanged()
-{
-    CodeEdit *edit = (CodeEdit *) QObject::sender();
-    QMdiSubWindow *sub = (QMdiSubWindow *)edit->parent();
-
-    if ( !edit->rev->textChangedSinceSave ) {
-
-        edit->rev->textChangedSinceSave = true;
-        sub->setWindowTitle( edit->rev->getDisplayName() );
-
-        //TODO: also update in shredTree UI
-    }
-
-    //if hasShredded and text changed (now!) make a new revision
-    if ( edit->rev->hasShredded ){
-
-        //get info from the parent revision
-        QString bufferTextChanged = edit->toPlainText();
-        int cursorPos = edit->textCursor().position();
-
-        //disconnect textChanged() for parent
-        disconnect(edit, SIGNAL(textChanged()),
-                   this, SLOT(onTextChanged()));
-        edit->undo(); //undo previous edit in old buffer
-        connect( edit, SIGNAL(textChanged()),
-                 this, SLOT(onTextChanged()));
-
-        //new revision
-        Revision *r = new Revision( edit->rev );
-        addCodeWindow(r, bufferTextChanged, cursorPos); //make a code window
-        notifyNewRevision(r);
-    }
+    //listen changes
+    edit->listenChanges();
 
 }
 
+//TODO: debug, this seems circular
 void CodeArea::selectRevision(Revision *r)
 {
     setActiveSubWindow( subWindowMap[r] );

@@ -20,17 +20,20 @@ RevTree::RevTree(QWidget *parent) :
 
 void RevTree::addRevision(Revision *r)
 {
-    QStringList str;
-    str << r->getDisplayName();
-    str << QString::number( r->getID() );
+    //TODO: dirty hack for multiple adding of revs, fix
+    if ( !revMap.contains(r) ) {
+        QStringList str;
+        str << r->getDisplayName();
+        str << QString::number( r->getID() );
 
-    QTreeWidgetItem *item = new QTreeWidgetItem(str, REV_TYPE);
+        QTreeWidgetItem *item = new QTreeWidgetItem(str, REV_TYPE);
 
-    addTopLevelItem(item);
+        addTopLevelItem(item);
 
-    //add the mapping for this item
-    revMap[r] = item;
-    revMapRight[item] = r;
+        //add the mapping for this item
+        revMap[r] = item;
+        revMapRight[item] = r;
+    }
 }
 
 void RevTree::removeRevision(Revision *r)

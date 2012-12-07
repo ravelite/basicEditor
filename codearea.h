@@ -23,7 +23,7 @@ signals:
 public slots:
     void selectRevision(Revision *r);
     void fireSelectRevision(QMdiSubWindow *sub);
-    void onTextChanged();
+    //void onTextChanged();
 
 private:
     QMap<Revision *,QMdiSubWindow *> subWindowMap;
