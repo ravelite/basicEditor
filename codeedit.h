@@ -21,7 +21,7 @@ protected:
 
     //void inputMethodEvent(QInputMethodEvent *ev);
     //void changeEvent(QEvent *e);
-    void keyPressEvent ( QKeyEvent * e );
+    //void keyPressEvent ( QKeyEvent * e );
     
 signals:
     
@@ -30,6 +30,9 @@ public slots:
 
 private:
     void updateTitle();
+
+    //save the text after undo, use it to filter textChanged signals
+    QString undoText;
     
 };
 

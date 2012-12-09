@@ -78,13 +78,12 @@ void CodeEdit::updateTitle()
 
 void CodeEdit::onTextChanged()
 {
-    /*
     QMdiSubWindow *sub = (QMdiSubWindow *)this->parent();
 
     updateTitle();
 
     //if hasShredded and text changed (now!) make a new revision
-    if ( rev->hasShredded ){
+    if ( rev->hasShredded && undoText.compare(toPlainText())!=0 ){
 
         //get info from the parent revision
         QString bufferTextChanged = toPlainText();
@@ -97,59 +96,41 @@ void CodeEdit::onTextChanged()
         undoChanges();
         listenChanges();
 
+        undoText = toPlainText();
+
         area->addCodeWindow(r, bufferTextChanged, cursorPos); //make a code window
     }
-    */
-
 }
 
 /*
-void CodeEdit::onTextChanged()
-{
-    if ( rev->hasShredded ){
-
-        //strategy: create a new code edit for the old revision
-        //this way we don't need to undo the changes
-
-        //get info from the parent revision
-        QString bufferTextChanged = toPlainText();
-        int cursorPos = textCursor().position();
-
-        //new revision
-        Revision *r = new Revision( rev );
-        CodeArea *area = (CodeArea *)sub->mdiArea();
-
-        undoChanges();
-        listenChanges();
-
-        area->addCodeWindow(r, bufferTextChanged, cursorPos); //make a code window
-    }
-}
-*/
-
 void CodeEdit::keyPressEvent ( QKeyEvent * e ) {
     //std::cout << "key press event" << e->text().toStdString() <<std::endl;
 
     QTextEdit::keyPressEvent(e);
 
-    QMdiSubWindow *sub = (QMdiSubWindow *)this->parent();
+    if ( textChanged ) {
 
-    updateTitle();
+        QMdiSubWindow *sub = (QMdiSubWindow *)this->parent();
 
-    //if hasShredded and text changed (now!) make a new revision
-    if ( rev->hasShredded ){
+        updateTitle();
 
-        //get info from the parent revision
-        QString bufferTextChanged = toPlainText();
-        int cursorPos = textCursor().position();
+        //if hasShredded and text changed (now!) make a new revision
+        if ( rev->hasShredded ){
 
-        //new revision
-        Revision *r = new Revision( rev );
-        CodeArea *area = (CodeArea *)sub->mdiArea();
+            //get info from the parent revision
+            QString bufferTextChanged = toPlainText();
+            int cursorPos = textCursor().position();
 
-        undo();
+            //new revision
+            Revision *r = new Revision( rev );
+            CodeArea *area = (CodeArea *)sub->mdiArea();
 
-        area->addCodeWindow(r, bufferTextChanged, cursorPos); //make a code window
+            undo();
+
+            area->addCodeWindow(r, bufferTextChanged, cursorPos); //make a code window
+        }
+
+        textChanged = false;
     }
 
-}
+}*/
