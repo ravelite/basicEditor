@@ -129,9 +129,17 @@ void MainWindow::on_actionAdd_Shred_triggered()
     //get the text from the active buffer (but also the filename)
     //CodeEdit *edit = (CodeEdit *) codeArea->focusWidget();
 
-    //TODO: refactor
+    /* ATTN: doesn't quite work, order doesn't seem to change correctly
     //get the top stacked window
     QMdiSubWindow *sub = codeArea->subWindowList().last();
+    CodeEdit *edit = (CodeEdit *) sub->widget();
+    */
+
+    //TODO: refactor, this seems to work as long as we keep a subwindow active
+    QMdiSubWindow *sub = codeArea->activeSubWindow();
+
+    if ( sub == NULL ) return;
+
     CodeEdit *edit = (CodeEdit *) sub->widget();
 
     if ( edit == NULL ) return;
