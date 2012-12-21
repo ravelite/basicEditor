@@ -56,8 +56,11 @@ MainWindow::MainWindow(QWidget *parent) :
     dock->setWidget( shredTree );
     addDockWidget( Qt::RightDockWidgetArea, dock );
 
-    dock->setFloating(true);
-    dock->move( frameGeometry().topRight() );
+//    //this code undocks and puts to the right of codeWindow
+//    dock->setFloating(true);
+//    dock->move( frameGeometry().topRight() );
+
+    resize(800,500);
 
     engine->sendTestMessage();
     createSessionDirectory();
@@ -124,7 +127,12 @@ bool MainWindow::saveFile(QString filePath, QString textContent)
 void MainWindow::on_actionAdd_Shred_triggered()
 {
     //get the text from the active buffer (but also the filename)
-    CodeEdit *edit = (CodeEdit *) codeArea->focusWidget();
+    //CodeEdit *edit = (CodeEdit *) codeArea->focusWidget();
+
+    //TODO: refactor
+    //get the top stacked window
+    QMdiSubWindow *sub = codeArea->subWindowList().last();
+    CodeEdit *edit = (CodeEdit *) sub->widget();
 
     if ( edit == NULL ) return;
 

@@ -24,6 +24,10 @@ CodeArea::CodeArea(QWidget *parent) :
     //forward selection changes in mdi
     connect( this, SIGNAL(subWindowActivated(QMdiSubWindow*)),
              this, SLOT(fireSelectRevision(QMdiSubWindow*)) );
+
+    //setup subWindowList() to return stacking order
+    //this is to facilitate always getting top window for execution
+    setActivationOrder( QMdiArea::StackingOrder );
 }
 
 void CodeArea::addCodeWindow(Revision *r, QString fileText, int cursorPos = 0)
@@ -52,10 +56,11 @@ void CodeArea::addCodeWindow(Revision *r, QString fileText, int cursorPos = 0)
 
     notifyNewRevision(r);
 
-    edit->focusWidget();
-
     //listen changes
     edit->listenChanges();
+
+    //edit->focusWidget();
+    setActiveSubWindow( subWindow );
 
 }
 

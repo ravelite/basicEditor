@@ -5,7 +5,14 @@ unAudicle issue tracking
    The fix works like this:
    Before you undo the parent buffer, disconnect textChanged() signal.
    Then after you undo, you can reconnect it.
-** Bugs with gridlayout when getting rid of shreds.
+** DONE Bugs with gridlayout when getting rid of shreds.
+   This is not a bug anymore, we don't use the gridLayout-based anymore.
+** DONE We lose focus after creating the new buffers.
+   Calling setActiveSubWindow() after creating window does the trick.
+** DONE When we don't have focus, the shredding function doesn't work.
+   We use the subWindowList with stacking order to get top window.
+** TODO After creating a few revisions and shredding them,
+   text in buffer does not match the text that successfully shredded.
 
 * Feature Ideas
 ** Support Supercollider.
