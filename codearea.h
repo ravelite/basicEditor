@@ -19,9 +19,12 @@ public:
 
 signals:
     void notifyNewRevision(Revision *r);
+    void selectedRevision(Revision *r);
     
 public slots:
     void selectRevision(Revision *r);
+
+    //necessary so selection changes can be forwarded from mdiArea
     void fireSelectRevision(QMdiSubWindow *sub);
     //void onTextChanged();
 

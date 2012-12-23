@@ -46,6 +46,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( codeArea, SIGNAL(notifyNewRevision(Revision*)),
              this, SLOT(addRevisionMain(Revision*)) );
 
+    //when selection changes in codeArea, change in shredTree
+    connect( codeArea, SIGNAL(selectedRevision(Revision*)),
+             shredTree, SLOT(selectRevision(Revision*)) );
+
     //when processes added or removed from engine
     connect( engine, SIGNAL(notifyNewProcess(Process*)),
              shredTree, SLOT(addProcess(Process*)) );

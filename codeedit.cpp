@@ -99,6 +99,9 @@ void CodeEdit::onTextChanged()
         undoText = toPlainText();
 
         area->addCodeWindow(r, bufferTextChanged, cursorPos); //make a code window
+
+        //select current revision, doesn't work ATM
+        //area->selectRevision(r);
     }
 }
 

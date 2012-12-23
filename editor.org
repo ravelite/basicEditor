@@ -13,6 +13,8 @@ unAudicle issue tracking
    We use the subWindowList with stacking order to get top window.
 ** TODO After creating a few revisions and shredding them,
    text in buffer does not match the text that successfully shredded.
+** DONE After creating a new revision, selection in tree widget does not follow.
+   created a signal in codeArea, selectedRevision, and connected it to shredTree
 
 * Feature Ideas
 ** Support Supercollider.

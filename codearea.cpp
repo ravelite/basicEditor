@@ -64,7 +64,7 @@ void CodeArea::addCodeWindow(Revision *r, QString fileText, int cursorPos = 0)
 
 }
 
-//TODO: debug, this seems circular
+//TODO: debug, this seems circular, maybe not necessary
 void CodeArea::selectRevision(Revision *r)
 {
     setActiveSubWindow( subWindowMap[r] );
@@ -73,4 +73,7 @@ void CodeArea::selectRevision(Revision *r)
 void CodeArea::fireSelectRevision(QMdiSubWindow *sub)
 {
     selectRevision( subWindowMap2[sub] );
+
+    //also notify other views
+    selectedRevision( subWindowMap2[sub] );
 }
