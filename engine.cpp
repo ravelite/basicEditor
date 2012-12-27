@@ -139,6 +139,25 @@ Revision * Engine::findRevision(int revId) {
     return NULL;
 }
 
+void Engine::addRevision(Revision *r)
+{
+    revisions << r;
+    revisionAdded(r);
+}
+
+//for doing graph layout
+QList<Revision *> Engine::getRoots()
+{
+    QList<Revision *> ret;
+    Revision *rev;
+
+    foreach( rev, revisions ) {
+        if ( rev->parent == NULL )
+            ret << rev;
+    }
+    return ret;
+}
+
 Process * Engine::findProcess(int procId, int srcLang) {
     Process *curr;
     foreach (curr, processes) {

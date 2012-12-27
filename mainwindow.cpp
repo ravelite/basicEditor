@@ -56,6 +56,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect( engine, SIGNAL(notifyRemoveProcess(Process*)),
              shredTree, SLOT(removeProcess(Process*)) );
 
+    //when revisions added to engine
+    connect( engine, SIGNAL(revisionAdded(Revision*)),
+             shredTree, SLOT(addRevision(Revision*)) );
+
     QDockWidget *dock = new QDockWidget();
     dock->setWidget( shredTree );
     addDockWidget( Qt::RightDockWidgetArea, dock );
@@ -91,8 +95,7 @@ void MainWindow::createSessionDirectory()
 
 void MainWindow::addRevisionMain(Revision *r)
 {
-    engine->revisions << r; //track the new revision
-    shredTree->addRevision(r); //add to tree UI
+    engine->addRevision(r);
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -111,7 +114,9 @@ void MainWindow::on_actionOpen_triggered()
 
     Revision *r = new Revision( filePath );
     codeArea->addCodeWindow(r, fileText, 0);
-    addRevisionMain(r);
+
+    //engine notifies views that a revision has been added
+    engine->addRevision(r);
 }
 
 bool MainWindow::saveFile(QString filePath, QString textContent)

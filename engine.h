@@ -20,12 +20,14 @@ public:
     Process *findProcess(int procId, int srcLang);
     Revision *findRevision(int revId);
 
-    QList<Revision *> revisions;
-    QList<Process *> processes;
+    void addRevision(Revision *);
+
+    QList<Revision *> getRoots();
 
 signals:
     void notifyNewProcess(Process *p);
     void notifyRemoveProcess(Process *p);
+    void revisionAdded(Revision *r);
     
 public slots:
     void killProcess(Process *p);
@@ -34,6 +36,10 @@ public slots:
 private:
     QUdpSocket *outSocket;
     QUdpSocket *inSocket;
+
+    //we know the roots have null parents
+    QList<Revision *> revisions; //all revisions
+    QList<Process *> processes; //all processes
     
 };
 

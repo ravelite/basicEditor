@@ -26,7 +26,6 @@ public slots:
 
     //necessary so selection changes can be forwarded from mdiArea
     void fireSelectRevision(QMdiSubWindow *sub);
-    //void onTextChanged();
 
 private:
     QMap<Revision *,QMdiSubWindow *> subWindowMap;

@@ -28,6 +28,8 @@ public:
     QString getLastSavedPath();
     int getID();
 
+    QList<Revision *> getSpine();
+
     Revision *parent;
     QList<Revision *> children;
 
@@ -40,6 +42,8 @@ public:
     int srcLang;
 
     void addChild(Revision *child);
+    int countNodes();
+    QList<Revision *> &getSpine(QList<Revision *> &);
 };
 
 #endif // REVISION_H

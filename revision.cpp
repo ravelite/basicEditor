@@ -86,6 +86,45 @@ int Revision::getID()
     return qHash(getSavePath());
 }
 
+/* r is one of the roots of the forest */
+QList<Revision *> & Revision::getSpine(QList<Revision *> &spine)
+{
+    spine << this;
+
+    int childCount = -1;
+    Revision *child;
+
+    int maxCount = -1;
+    Revision *maxChild = NULL;
+
+    if ( children.size() <= 0 )
+        return spine;
+
+    foreach( child, children )
+    {
+        childCount = child->countNodes();
+        if ( childCount > maxCount ) {
+            maxCount = childCount;
+            maxChild = child;
+        }
+    }
+
+    return maxChild->getSpine(spine);
+}
+
+/* count nodes in this subtree */
+//TODO: could memoise this, but probably not necessary
+int Revision::countNodes()
+{
+    int sum = 1;
+    Revision *child;
+    foreach( child, children )
+        sum += child->countNodes();
+
+    return sum;
+}
+
+
 void Revision::addChild(Revision *child)
 {
     children << child;

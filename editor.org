@@ -13,6 +13,7 @@ unAudicle issue tracking
    We use the subWindowList with stacking order to get top window.
 ** TODO After creating a few revisions and shredding them,
    text in buffer does not match the text that successfully shredded.
+   Not sure if this bug still exists.
 ** DONE After creating a new revision, selection in tree widget does not follow.
    created a signal in codeArea, selectedRevision, and connected it to shredTree
 
@@ -20,6 +21,7 @@ unAudicle issue tracking
 ** Support Supercollider.
 ** Make a better revision tree visualization.
 *** Try implementing the ordered tree layout algorithm in trees.pdf.
+    To do this I think we need a queryable model.
 ** Automatically delete empty sessions.
 ** Save information for replaying a session.
 ** Make a shred action "fadeOut".
