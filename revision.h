@@ -28,8 +28,6 @@ public:
     QString getLastSavedPath();
     int getID();
 
-    QList<Revision *> getSpine();
-
     Revision *parent;
     QList<Revision *> children;
 

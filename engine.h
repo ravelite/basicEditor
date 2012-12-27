@@ -23,6 +23,7 @@ public:
     void addRevision(Revision *);
 
     QList<Revision *> getRoots();
+    QList<Revision *> getRevisions();
 
 signals:
     void notifyNewProcess(Process *p);

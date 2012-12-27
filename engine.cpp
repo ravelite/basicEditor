@@ -158,6 +158,11 @@ QList<Revision *> Engine::getRoots()
     return ret;
 }
 
+QList<Revision *> Engine::getRevisions()
+{
+    return revisions;
+}
+
 Process * Engine::findProcess(int procId, int srcLang) {
     Process *curr;
     foreach (curr, processes) {
