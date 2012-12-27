@@ -42,6 +42,8 @@ private:
     QMap<Process *, QTreeWidgetItem *> procMap;
     QMap<QTreeWidgetItem *, Process *> procMapRight;
 
+    bool flattenTree;
+
 };
 
 #endif // REVTREE_H

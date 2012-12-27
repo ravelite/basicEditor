@@ -4,7 +4,8 @@ const int RevTree::REV_TYPE = 1001;
 const int RevTree::PROC_TYPE = 1002;
 
 RevTree::RevTree(QWidget *parent) :
-    QTreeWidget(parent)
+    QTreeWidget(parent),
+    flattenTree(false)
 {
     //set the columns for (Name, ID)
     setColumnCount(2);
@@ -28,7 +29,12 @@ void RevTree::addRevision(Revision *r)
 
         QTreeWidgetItem *item = new QTreeWidgetItem(str, REV_TYPE);
 
-        addTopLevelItem(item);
+        if ( flattenTree || r->parent==NULL )
+            addTopLevelItem(item);
+        else {
+            QTreeWidgetItem *parent = revMap[r->parent];
+            parent->addChild(item);
+        }
 
         //add the mapping for this item
         revMap[r] = item;
