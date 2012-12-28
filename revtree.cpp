@@ -10,6 +10,7 @@ RevTree::RevTree(QWidget *parent) :
     //set the columns for (Name, ID)
     setColumnCount(10);
 
+    setColumnWidth(0, 150);
     for (int i=1; i<=columnCount(); i++)
         setColumnWidth(i, 20);
 
@@ -28,6 +29,8 @@ RevTree::RevTree(QWidget *parent) :
     //keep double-clicks from expanding/collapsing,
     //can still use handles
     setExpandsOnDoubleClick(false);
+
+    //setWordWrap(true);
 }
 
 void RevTree::addRevision(Revision *r)

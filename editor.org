@@ -18,17 +18,18 @@ unAudicle issue tracking
    created a signal in codeArea, selectedRevision, and connected it to shredTree
 
 * Feature Ideas
-** Support Supercollider.
+** TODO Support Supercollider.
 ** Make a better revision tree visualization.
 *** Try implementing the ordered tree layout algorithm in trees.pdf.
     To do this I think we need a queryable model.
+    This is on hold for now, better prioratize other features.
 ** Automatically delete empty sessions.
-** Save information for replaying a session.
+** TODO Save information for replaying a session.
 ** Make a shred action "fadeOut".
-** Support File, New Buffer.
+** TODO Support File, New Buffer.
 ** Extend and use the macro system (maybe with arg macros)
    to support global variable declarations in chuck.
-** Try to make a signals and slots way to interact with tree viz.
+** DONE Try to make a signals and slots way to interact with tree viz.
 
 * Stupid Feature Ideas
 ** Make a configurable splash screen.
