@@ -23,6 +23,7 @@ RevTree::RevTree(QWidget *parent) :
 
     //options for appearance
     setIndentation(8);
+    setHeaderHidden(true);
 
     //keep double-clicks from expanding/collapsing,
     //can still use handles
