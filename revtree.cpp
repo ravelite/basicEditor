@@ -17,6 +17,10 @@ RevTree::RevTree(QWidget *parent) :
     //also for single clicks
     connect( this, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
              this, SLOT(itemClick(QTreeWidgetItem*)) );
+
+    //options for appearance
+    setIndentation(8);
+    //hideColumn(1);
 }
 
 void RevTree::addRevision(Revision *r)

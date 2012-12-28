@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setCentralWidget(codeArea);
 
     shredTree = new RevTree();
-    treevis = new TreeVis(engine);
+    //treevis = new TreeVis(engine);
 
     //connect shredTree for delete messages
     connect( shredTree, SIGNAL(requestRemoveProcess(Process*)),
@@ -65,14 +65,12 @@ MainWindow::MainWindow(QWidget *parent) :
     dock->setWidget( shredTree );
     addDockWidget( Qt::RightDockWidgetArea, dock );
 
+    /*
     QDockWidget *dock2 = new QDockWidget();
     dock2->setWidget( treevis );
     addDockWidget( Qt::BottomDockWidgetArea, dock2 );
     dock2->setFloating( true );
-
-//    //this code undocks and puts to the right of codeWindow
-//    dock->setFloating(true);
-//    dock->move( frameGeometry().topRight() );
+    */
 
     resize(800,500);
 
