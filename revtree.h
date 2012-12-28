@@ -44,6 +44,8 @@ private:
 
     bool flattenTree;
 
+    void updateParentRevision(Revision *r);
+
 };
 
 #endif // REVTREE_H

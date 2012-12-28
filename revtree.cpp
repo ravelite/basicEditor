@@ -8,7 +8,10 @@ RevTree::RevTree(QWidget *parent) :
     flattenTree(false)
 {
     //set the columns for (Name, ID)
-    setColumnCount(2);
+    setColumnCount(10);
+
+    for (int i=1; i<=columnCount(); i++)
+        setColumnWidth(i, 20);
 
     //connect to item->pRev mapping
     connect( this, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
@@ -20,7 +23,10 @@ RevTree::RevTree(QWidget *parent) :
 
     //options for appearance
     setIndentation(8);
-    //hideColumn(1);
+
+    //keep double-clicks from expanding/collapsing,
+    //can still use handles
+    setExpandsOnDoubleClick(false);
 }
 
 void RevTree::addRevision(Revision *r)
@@ -28,8 +34,9 @@ void RevTree::addRevision(Revision *r)
     //TODO: dirty hack for multiple adding of revs, fix
     if ( !revMap.contains(r) ) {
         QStringList str;
-        str << r->getDisplayName();
-        str << QString::number( r->getID() );
+        //str << r->getDisplayName();
+        str << r->getShortName();
+        //str << QString::number( r->getID() );
 
         QTreeWidgetItem *item = new QTreeWidgetItem(str, REV_TYPE);
 
@@ -66,9 +73,35 @@ void RevTree::addProcess(Process *p)
             new QTreeWidgetItem(str, RevTree::PROC_TYPE);
     revMap[p->rev]->addChild( item );
 
+    item->setHidden(true); //make it invisible
+
     //add the mapping for this item
     procMap[p] = item;
     procMapRight[item] = p;
+
+    //change the display of the parent
+    updateParentRevision( p->rev );
+}
+
+void RevTree::updateParentRevision( Revision *r )
+{
+    QTreeWidgetItem *item = revMap[r];
+    QTreeWidgetItem *child = NULL;
+
+    int procNum = 0;
+
+    for (int i=0; i<item->childCount(); i++)
+    {
+        child = item->child(i);
+        if ( child->type() == RevTree::PROC_TYPE )
+        {
+            item->setText(++procNum, child->text(0) );
+        }
+    }
+
+    //clear the rest
+    for (int i=procNum+1; i<columnCount(); i++)
+        item->setText(i, "");
 }
 
 //TODO: I think this process is similir to add/removeRevision
@@ -83,17 +116,40 @@ void RevTree::removeProcess(Process *p)
 
     //remove it from the UI
     delete item;
+
+    //update the children in columns
+    updateParentRevision(p->rev);
 }
 
+/* this is double click */
 void RevTree::itemActivate(QTreeWidgetItem *item, int col)
 {
-    if ( item->type() == REV_TYPE )
-        selectedRevision( revMapRight[item] );
+    if ( item->type() == REV_TYPE ) {
+        if ( col==0 )
+            selectedRevision( revMapRight[item] );
+        else {
+            int t=col-1; //kill the t-th child process
+            int childProcSeen=0;
+
+            QTreeWidgetItem *child = NULL;
+            for (int i=0; i<item->childCount(); i++)
+            {
+                child = item->child(i);
+                if ( child->type() == RevTree::PROC_TYPE )
+                {
+                    if ( t==childProcSeen )
+                        requestRemoveProcess(procMapRight[child]);
+                    ++childProcSeen;
+                }
+            }
+        }
+    }
     else if ( item->type() == PROC_TYPE )
         requestRemoveProcess( procMapRight[item] );
 
 }
 
+/* this is single click */
 void RevTree::itemClick(QTreeWidgetItem *item, int col)
 {
     if ( item->type() == REV_TYPE )

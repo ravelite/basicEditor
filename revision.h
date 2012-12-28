@@ -42,6 +42,8 @@ public:
     void addChild(Revision *child);
     int countNodes();
     QList<Revision *> &getSpine(QList<Revision *> &);
+
+    QString getShortName();
 };
 
 #endif // REVISION_H

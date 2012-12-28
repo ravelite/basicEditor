@@ -54,6 +54,25 @@ QString Revision::getBufferName()
     return ret;
 }
 
+/* a superabbreviated name that cuts the base name */
+QString Revision::getShortName()
+{
+    QString ret;
+
+    QFileInfo info(srcFilePath);
+
+    if ( revNum > 0 ) {
+        ret = "_." +
+              QString::number( revNum ) +  "." +
+              info.suffix();
+    }
+    else {
+        ret = info.fileName();
+    }
+
+    return ret;
+}
+
 QString Revision::getDisplayName()
 {
     QString ret = getBufferName();
