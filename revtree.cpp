@@ -12,11 +12,11 @@ RevTree::RevTree(QWidget *parent) :
 
     //connect to item->pRev mapping
     connect( this, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
-             this, SLOT(itemActivate(QTreeWidgetItem*)) );
+             this, SLOT(itemActivate(QTreeWidgetItem*,int)) );
 
     //also for single clicks
     connect( this, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
-             this, SLOT(itemClick(QTreeWidgetItem*)) );
+             this, SLOT(itemClick(QTreeWidgetItem*,int)) );
 
     //options for appearance
     setIndentation(8);
@@ -85,7 +85,7 @@ void RevTree::removeProcess(Process *p)
     delete item;
 }
 
-void RevTree::itemActivate(QTreeWidgetItem *item)
+void RevTree::itemActivate(QTreeWidgetItem *item, int col)
 {
     if ( item->type() == REV_TYPE )
         selectedRevision( revMapRight[item] );
@@ -94,7 +94,7 @@ void RevTree::itemActivate(QTreeWidgetItem *item)
 
 }
 
-void RevTree::itemClick(QTreeWidgetItem *item)
+void RevTree::itemClick(QTreeWidgetItem *item, int col)
 {
     if ( item->type() == REV_TYPE )
         selectedRevision( revMapRight[item] );

@@ -23,8 +23,8 @@ public slots:
     void addProcess( Process *p );
     void removeProcess( Process *p );
 
-    void itemActivate(QTreeWidgetItem *item);
-    void itemClick(QTreeWidgetItem *item);
+    void itemActivate(QTreeWidgetItem *item, int);
+    void itemClick(QTreeWidgetItem *item, int);
 
 signals:
     void addedRevision( Revision *r );
