@@ -22,6 +22,17 @@ unAudicle issue tracking
 *** Another idea is just changing global indent to scale widest range.
     This would have the advantage of working well with filtering techniques.
 
+** TODO crashing bug
+   Open a file, close the editor window, open another file,
+   then select the previous file via the tree.
+** TODO non-crashing bug
+   Open a file, close the editor window, reopen file.
+   you get another revision version. (or just open same file twice)
+** TODO short lived shreds bubbles stay around
+   And if you click on them they don't go away.
+** TODO on Mac, 10th shred doesn't show up (maybe display error)
+
+
 * Feature Ideas
 ** TODO Support Supercollider.
 *** 1. Option one: named pipes, QProcess, parsing returns.
