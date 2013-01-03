@@ -1,4 +1,3 @@
-
 /debug
 /release
 /Makefile
@@ -10,3 +9,4 @@
 /#editor.org#
 /*~
 /session*
+*.user.*
