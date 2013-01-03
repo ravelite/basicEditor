@@ -1,5 +1,7 @@
 #include "revtree.h"
 
+#include <QTreeWidgetItemIterator>
+
 const int RevTree::REV_TYPE = 1001;
 const int RevTree::PROC_TYPE = 1002;
 
@@ -26,11 +28,13 @@ RevTree::RevTree(QWidget *parent) :
     setIndentation(8);
     setHeaderHidden(true);
 
-    //keep double-clicks from expanding/collapsing,
-    //can still use handles
+    //keep double-clicks from expanding/collapsing for all columns
+    //though we can recreate this behavior
     setExpandsOnDoubleClick(false);
 
     //setWordWrap(true);
+    //setRootIsDecorated(false);
+    //setIndentation(0);
 }
 
 void RevTree::addRevision(Revision *r)
@@ -54,6 +58,10 @@ void RevTree::addRevision(Revision *r)
         //add the mapping for this item
         revMap[r] = item;
         revMapRight[item] = r;
+
+        //resize column if needed
+        if ( sizeHintForColumn(0) > columnWidth(0) )
+            resizeColumnToContents(0);
     }
 }
 
@@ -108,7 +116,63 @@ void RevTree::updateParentRevision( Revision *r )
         item->setText(i, "");
 }
 
-//TODO: I think this process is similir to add/removeRevision
+void RevTree::requestRemoveChildProcess(QTreeWidgetItem *item, int t)
+{
+    int childProcSeen=0;
+
+    QTreeWidgetItem *child = NULL;
+    for (int i=0; i<item->childCount(); i++)
+    {
+        child = item->child(i);
+        if ( child->type() == RevTree::PROC_TYPE )
+        {
+            if ( t==childProcSeen )
+                requestRemoveProcess(procMapRight[child]);
+            ++childProcSeen;
+        }
+    }
+}
+
+int RevTree::getTreeLevel(QTreeWidgetItem *item)
+{
+    int i;
+    while( item->parent() ) {
+        item = item->parent();
+        i++;
+    }
+    return i;
+}
+
+int RevTree::getMaxTreeLevel()
+{
+    int maxLevel = 0;
+    QTreeWidgetItem *maxItem;
+
+    QTreeWidgetItemIterator it(this);
+    while (*it) {
+        if ( getTreeLevel(*it) > maxLevel ) {
+            maxLevel = getTreeLevel(*it);
+            maxItem = *it;
+        }
+
+        ++it;
+    }
+
+    return maxLevel;
+}
+
+/* adjust the indent according to:
+ * 1. available space, 2. depth of visible tree members */
+void RevTree::adjustIndent()
+{
+    int width = columnWidth(0);
+    int maxLevel = getMaxTreeLevel();
+
+    setIndentation( width / maxLevel );
+
+}
+
+//TODO: I think this process is similar to add/removeRevision
 //maybe we can refactor and use the same
 void RevTree::removeProcess(Process *p)
 {
@@ -129,24 +193,12 @@ void RevTree::removeProcess(Process *p)
 void RevTree::itemActivate(QTreeWidgetItem *item, int col)
 {
     if ( item->type() == REV_TYPE ) {
-        if ( col==0 )
+        if ( col==0 ) {
             selectedRevision( revMapRight[item] );
-        else {
-            int t=col-1; //kill the t-th child process
-            int childProcSeen=0;
-
-            QTreeWidgetItem *child = NULL;
-            for (int i=0; i<item->childCount(); i++)
-            {
-                child = item->child(i);
-                if ( child->type() == RevTree::PROC_TYPE )
-                {
-                    if ( t==childProcSeen )
-                        requestRemoveProcess(procMapRight[child]);
-                    ++childProcSeen;
-                }
-            }
+            item->setExpanded( !item->isExpanded() );
         }
+        else
+            requestRemoveChildProcess(item, col-1);
     }
     else if ( item->type() == PROC_TYPE )
         requestRemoveProcess( procMapRight[item] );

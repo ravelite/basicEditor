@@ -16,9 +16,16 @@ unAudicle issue tracking
    Not sure if this bug still exists.
 ** DONE After creating a new revision, selection in tree widget does not follow.
    created a signal in codeArea, selectedRevision, and connected it to shredTree
+** TODO Indented items too-far indented past next columns.
+*** One idea to fix this was custom renderer that alters indent system.
+    Though this appears to be difficult, easy event logic in QTreeViewPrivate.
+*** Another idea is just changing global indent to scale widest range.
+    This would have the advantage of working well with filtering techniques.
 
 * Feature Ideas
 ** TODO Support Supercollider.
+*** 1. Option one: named pipes, QProcess, parsing returns.
+*** 2. Option two: more like build an OSCUDP api like before.
 ** Make a better revision tree visualization.
 *** Try implementing the ordered tree layout algorithm in trees.pdf.
     To do this I think we need a queryable model.
@@ -30,6 +37,14 @@ unAudicle issue tracking
 ** Extend and use the macro system (maybe with arg macros)
    to support global variable declarations in chuck.
 ** DONE Try to make a signals and slots way to interact with tree viz.
+
+** TODO Try using FileDrop to run chuck --add from command line.
+
+* New Ideas
+** Track changes since spork/ or diffs. Show novel edits, 
+   maybe on a line, maybe viz. Show edit/code volumes.
+** Show volume/frequency from each shred. 
+   Highness/lowness from spectral centroid.
 
 * Stupid Feature Ideas
 ** Make a configurable splash screen.

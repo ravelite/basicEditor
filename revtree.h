@@ -45,6 +45,10 @@ private:
     bool flattenTree;
 
     void updateParentRevision(Revision *r);
+    void requestRemoveChildProcess(QTreeWidgetItem *, int);
+    int getTreeLevel(QTreeWidgetItem *);
+    int getMaxTreeLevel();
+    void adjustIndent();
 
 };
 
