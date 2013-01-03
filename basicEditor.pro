@@ -9,7 +9,7 @@ QT       += core gui network script
 TARGET = basicEditor
 TEMPLATE = app
 
-INCLUDEPATH += C:\Users\Graham\Desktop\chuck_today\oscpack
+INCLUDEPATH += oscpack
 
 SOURCES += main.cpp\
         mainwindow.cpp \
