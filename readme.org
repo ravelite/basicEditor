@@ -1,0 +1,21 @@
+* Welcome to the unaudicle (provisional name).
+
+This is an open source livecoding editor with revisioning
+and some UI for process-management. (in the tradition of the Audicle)
+
+* How to build it
+
+You will need the Qt SDK. Install this and then build the unaudicle.
+(but you are on your own for this)
+
+* How to run it
+
+To use the unaudicle with ChucK, you will need to run the lightweight 
+shell that communicates with the editor using OSC over UDP.
+To do this, run oscShell.ck using the miniAudicle or command-line ChucK.
+
+Then you should be able to use the Add Shred action from unaudicle.
+
+* How to use it
+
+To be written.
