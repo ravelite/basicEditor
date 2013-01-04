@@ -8,6 +8,8 @@ and some UI for process-management. (in the tradition of the Audicle)
 You will need the Qt SDK. Install this and then build the unaudicle.
 (but you are on your own for this)
 
+On Mac, Mark says you might get Qt from homebrew package system.
+
 * How to run it
 
 To use the unaudicle with ChucK, you will need to run the lightweight 
