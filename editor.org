@@ -11,17 +11,16 @@ unAudicle issue tracking
    Calling setActiveSubWindow() after creating window does the trick.
 ** DONE When we don't have focus, the shredding function doesn't work.
    We use the subWindowList with stacking order to get top window.
-** TODO After creating a few revisions and shredding them,
-   text in buffer does not match the text that successfully shredded.
-   Not sure if this bug still exists.
+
 ** DONE After creating a new revision, selection in tree widget does not follow.
    created a signal in codeArea, selectedRevision, and connected it to shredTree
-** TODO Indented items too-far indented past next columns.
+** DONE Indented items too-far indented past next columns.
+   This was fixed by expanding the columns if they overflow.
+   Then you have to scroll, but this is relatively painless.
 *** One idea to fix this was custom renderer that alters indent system.
     Though this appears to be difficult, easy event logic in QTreeViewPrivate.
 *** Another idea is just changing global indent to scale widest range.
     This would have the advantage of working well with filtering techniques.
-
 ** TODO crashing bug
    Open a file, close the editor window, open another file,
    then select the previous file via the tree.
@@ -31,25 +30,31 @@ unAudicle issue tracking
 ** TODO short lived shreds bubbles stay around
    And if you click on them they don't go away.
 ** TODO on Mac, 10th shred doesn't show up (maybe display error)
+** TODO File, New Buffer doesn't actually work yet. It should.
 
+** Inactive
+*** TODO After creating a few revisions and shredding them,
+    text in buffer does not match the text that successfully shredded.
+    Not sure if this bug still exists.
 
 * Feature Ideas
 ** TODO Support Supercollider.
 *** 1. Option one: named pipes, QProcess, parsing returns.
 *** 2. Option two: more like build an OSCUDP api like before.
-** Make a better revision tree visualization.
-*** Try implementing the ordered tree layout algorithm in trees.pdf.
-    To do this I think we need a queryable model.
-    This is on hold for now, better prioratize other features.
 ** Automatically delete empty sessions.
 ** TODO Save information for replaying a session.
 ** Make a shred action "fadeOut".
-** TODO Support File, New Buffer.
 ** Extend and use the macro system (maybe with arg macros)
    to support global variable declarations in chuck.
 ** DONE Try to make a signals and slots way to interact with tree viz.
-
 ** TODO Try using FileDrop to run chuck --add from command line.
+** TODO Or support other file formats by adding a command string.
+
+** Inactive
+*** TODO Make a better revision tree visualization.
+**** Try implementing the ordered tree layout algorithm in trees.pdf.
+     To do this I think we need a queryable model.
+     This is on hold for now, better prioratize other features.
 
 * New Ideas
 ** Track changes since spork/ or diffs. Show novel edits, 
