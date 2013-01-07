@@ -195,5 +195,17 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionNew_triggered()
 {
+    int seqNum = 0;
+    QString filePath;
+    QFileInfo info;
+    do {
+        filePath = QString("file%1.ck").arg(QString::number(++seqNum));
+        info.setFile(filePath);
+    } while( info.exists() );
 
+    Revision *r = new Revision( filePath );
+    codeArea->addCodeWindow(r, "", 0);
+
+    //engine notifies views that a revision has been added
+    engine->addRevision(r);
 }
