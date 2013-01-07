@@ -30,7 +30,8 @@ unAudicle issue tracking
 ** TODO short lived shreds bubbles stay around
    And if you click on them they don't go away.
 ** TODO on Mac, 10th shred doesn't show up (maybe display error)
-** TODO File, New Buffer doesn't actually work yet. It should.
+** DONE File, New Buffer doesn't actually work yet. It should.
+   First pass for this done.
 
 ** Inactive
 *** TODO After creating a few revisions and shredding them,
