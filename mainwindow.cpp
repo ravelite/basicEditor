@@ -195,6 +195,7 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionNew_triggered()
 {
+    /* search for nonextant file for the new file */
     int seqNum = 0;
     QString filePath;
     QFileInfo info;
