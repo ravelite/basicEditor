@@ -5,8 +5,9 @@ and some UI for process-management. (in the tradition of the Audicle)
 
 * How to build it
 
-You will need the Qt SDK. Install this and then build the unaudicle.
-(but you are on your own for this)
+You will need the Qt SDK. Install this and then build the unaudicle,
+either from the commandline using qmake then make,
+or for example using the Qt Creator IDE.
 
 On Mac, Mark says you might get Qt from homebrew package system.
 
