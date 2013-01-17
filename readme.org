@@ -25,4 +25,4 @@ To be written.
 
 * Misc
 
-[[file:editor.org][Bugs and Todos]]
+[[file:./editor.org][Bugs and Todos]]
