@@ -22,3 +22,7 @@ Then you should be able to use the Add Shred action from unaudicle.
 * How to use it
 
 To be written.
+
+* Misc
+
+[[file:editor.org][Bugs and Todos]]
