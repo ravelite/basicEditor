@@ -14,7 +14,10 @@
 #define HELLO "/hello"
 #define CHUCK_NEW "/chuck/new"
 #define CHUCK_REMOVE "/chuck/remove"
+#define SC_NEW "/sc/new"
+#define SC_REMOVE "/sc/remove"
 
+//TODO: we need multiple output sockets here, for each lang
 Engine::Engine(QObject *parent) :
     QObject(parent),
     outSocket( new QUdpSocket(this) ),
