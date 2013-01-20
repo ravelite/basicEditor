@@ -8,7 +8,7 @@ thus we can use the same method names for the call and the return.
 
 We should try to keep this updated and the language adaptors similar.
 
-- lang :: short name for language i.e. ck,scd
+- lang :: short name for language i.e. chuck,sc
 
 ** Method calls: supported by VM adaptor
 
