@@ -1,0 +1,26 @@
+* Notes on the OSC adaptors
+
+The editor uses two-way OSC messages to communicate with the VMs running 
+adaptor code: that creates new VM processes and reports results to the editor.
+
+For now, it is assumed that the editor and VM ports are different,
+thus we can use the same method names for the call and the return.
+
+We should try to keep this updated and the language adaptors similar.
+
+- lang :: short name for language i.e. ck,scd
+
+** Method calls: supported by VM adaptor
+
+/lang/new,si: send code at path (1st arg) with coord number (2nd arg)
+
+/lang/remove,i: remove process given by process number (arg)
+
+** Return calls: supported by editor
+
+/lang/new,ii: process created for coord number (1st arg) 
+  if process number (2nd arg) is nonzero
+
+/lang/remove,i: (arg) process number removed, if nonzero
+
+

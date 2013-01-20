@@ -41,7 +41,7 @@ unAudicle issue tracking
 * Feature Ideas
 ** TODO Support Supercollider.
 *** 1. Option one: named pipes, QProcess, parsing returns.
-*** 2. Option two: more like build an OSCUDP api like before.
+*** 2. *Option two*: more like build an OSCUDP api like before.
 ** Automatically delete empty sessions.
 ** TODO Save information for replaying a session.
 ** Make a shred action "fadeOut".
