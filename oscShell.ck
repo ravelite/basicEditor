@@ -15,7 +15,7 @@ fun void waitNewShred() {
 
     //the arguments are a path to the file,
     //and some sort of editor-specific ID for the shred
-    orec.event("/shred/new,si") @=> OscEvent newShred;
+    orec.event("/chuck/new,si") @=> OscEvent newShred;
 
     while( true ) {
 
@@ -31,7 +31,7 @@ fun void waitNewShred() {
             newShred.getInt() => int edShrid;
             
             //send the response, the editor ID with the shred ID
-            xmit.startMsg("/shred/new,ii");
+            xmit.startMsg("/chuck/new,ii");
             xmit.addInt( edShrid );
             xmit.addInt( shrid );
         }
@@ -42,7 +42,7 @@ fun void waitNewShred() {
 fun void waitRemoveShred() {
     
     //the argument is the shred id
-    orec.event("/shred/remove,i") @=> OscEvent removeShred;
+    orec.event("/chuck/remove,i") @=> OscEvent removeShred;
     
     while( true ) {
         
@@ -54,7 +54,7 @@ fun void waitRemoveShred() {
             Machine.remove( removeShred.getInt() ) => int resp;
             
             //send the response directly
-            xmit.startMsg("/shred/remove,i");
+            xmit.startMsg("/chuck/remove,i");
             xmit.addInt( resp );
         }
     }
