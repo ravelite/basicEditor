@@ -39,9 +39,12 @@ unAudicle issue tracking
     Not sure if this bug still exists.
 
 * Feature Ideas
-** TODO Support Supercollider.
+** DONE Support Supercollider.
 *** 1. Option one: named pipes, QProcess, parsing returns.
 *** 2. *Option two*: more like build an OSCUDP api like before.
+*** TODO bug: file selector for open file only has *.ck files as option
+*** TODO change name of shred file action
+
 ** Automatically delete empty sessions.
 ** TODO Save information for replaying a session.
 ** Make a shred action "fadeOut".
