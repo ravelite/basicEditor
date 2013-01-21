@@ -3,7 +3,7 @@
 ~commNew = "/sc/new";
 ~commRemove = "/sc/remove";
 
-~scShell = { arg shellPort = NetAddr.langPort, commandPort = 8000;
+~scShell = { arg shellPort = NetAddr.langPort, commandPort = 7001;
 	n = NetAddr("127.0.0.1", shellPort);
 	q = NetAddr("127.0.0.1", commandPort);
 	~coll = List();

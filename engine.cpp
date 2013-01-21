@@ -6,8 +6,10 @@
 
 #include <iostream>
 
-#define PORT_SEND 7000
+#define PORT_SEND_CHUCK 7000
 #define PORT_RECV 7001
+#define PORT_SEND_SC 57120
+
 #define OUTPUT_BUFFER_SIZE 1024
 #define ADDRESS "127.0.0.1"
 
@@ -17,7 +19,6 @@
 #define SC_NEW "/sc/new"
 #define SC_REMOVE "/sc/remove"
 
-//TODO: we need multiple output sockets here, for each lang
 Engine::Engine(QObject *parent) :
     QObject(parent),
     outSocket( new QUdpSocket(this) ),
@@ -44,21 +45,70 @@ void Engine::sendTestMessage() {
     p << osc::BeginMessage( HELLO ) <<
             "unaudicle is awake" << osc::EndMessage;
 
-    outSocket->writeDatagram( p.Data(), p.Size(), QHostAddress::LocalHost, PORT_SEND );
+    //test signal just for ChucK, maybe this code is not needed anymore
+    outSocket->writeDatagram( p.Data(), p.Size(), QHostAddress::LocalHost, PORT_SEND_CHUCK );
 }
 
 //TODO: investigate this to see if this should send different messages
-void Engine::shredFile(QString filePath, int revID) {
+void Engine::makeProcess(QString filePath, Revision *r)
+{
+    int destPort = -1;
+    const char *command = NULL;
+
+    switch( r->srcLang ) {
+    case Revision::SrcLangChuck:
+        destPort = PORT_SEND_CHUCK;
+        command = CHUCK_NEW;
+        break;
+    case Revision::SrcLangSc:
+        destPort = PORT_SEND_SC;
+        command = SC_NEW;
+        break;
+    default:
+        return;
+    }
 
     char buffer[OUTPUT_BUFFER_SIZE];
     osc::OutboundPacketStream p( buffer, OUTPUT_BUFFER_SIZE );
 
     //for now, just use the source file path for hash
-    p << osc::BeginMessage( CHUCK_NEW ) <<
+    p << osc::BeginMessage( command ) <<
          filePath.toAscii().constData() <<
-         revID << osc::EndMessage;
+         r->getID() << osc::EndMessage;
 
-    outSocket->writeDatagram( p.Data(), p.Size(), QHostAddress::LocalHost, PORT_SEND );
+    outSocket->writeDatagram( p.Data(), p.Size(),
+                              QHostAddress::LocalHost, destPort );
+}
+
+void Engine::killProcess(Process *p)
+{
+    //TODO: refactor this copied code with makeProcess
+    int destPort = -1;
+    const char *command = NULL;
+
+    switch( p->rev->srcLang ) {
+    case Revision::SrcLangChuck:
+        destPort = PORT_SEND_CHUCK;
+        command = CHUCK_REMOVE;
+        break;
+    case Revision::SrcLangSc:
+        destPort = PORT_SEND_SC;
+        command = SC_REMOVE;
+        break;
+    default:
+        return;
+    }
+
+    //actually send the command
+    int pid = p->id;
+
+    char buffer[OUTPUT_BUFFER_SIZE];
+    osc::OutboundPacketStream pstream( buffer, OUTPUT_BUFFER_SIZE );
+    pstream << osc::BeginMessage( command ) << pid << osc::EndMessage;
+
+    outSocket->writeDatagram( pstream.Data(), pstream.Size(),
+                              QHostAddress::LocalHost, destPort );
+
 }
 
 void Engine::readPendingDatagrams()
@@ -82,13 +132,14 @@ void Engine::readPendingDatagrams()
                 //ignore the arguments, print some message
                 std::cout << "got /hello message!" << std::endl;
 
-            } else if ( strcmp( m.AddressPattern(), CHUCK_NEW ) ==0 ) {
+            } else if ( strcmp( m.AddressPattern(), CHUCK_NEW )==0 ||
+                        strcmp( m.AddressPattern(), SC_NEW )==0 ) {
 
                 osc::int32 edShrid;
                 osc::int32 shrid;
                 m.ArgumentStream() >> edShrid >> shrid >> osc::EndMessage;
 
-                std::cout << CHUCK_NEW << "," << edShrid << "," << shrid << std::endl;
+                std::cout << m.AddressPattern() << "," << edShrid << "," << shrid << std::endl;
 
                 Revision *r = findRevision( edShrid );
                 if (r!=NULL) {
@@ -101,19 +152,23 @@ void Engine::readPendingDatagrams()
 
                     processes << p; //keep track of it
 
-                    //TODO: connect this to something
-                    //shredTree->addProcess(p);
                     notifyNewProcess(p);
                 }
 
-            } else if ( strcmp( m.AddressPattern(), CHUCK_REMOVE ) ==0 ) {
+            } else if ( strcmp( m.AddressPattern(), CHUCK_REMOVE )==0 ||
+                        strcmp( m.AddressPattern(), SC_REMOVE )==0 ) {
 
                 osc::int32 shrid;
                 m.ArgumentStream() >> shrid >> osc::EndMessage;
 
-                std::cout << CHUCK_REMOVE << "," << shrid << std::endl;
+                std::cout << m.AddressPattern() << "," << shrid << std::endl;
 
-                Process *p = findProcess(shrid, Revision::SRCLANG_CHUCK);
+                Process *p = NULL;
+                if ( strcmp( m.AddressPattern(), CHUCK_REMOVE )==0 )
+                    p = findProcess(shrid, Revision::SrcLangChuck);
+                else if ( strcmp( m.AddressPattern(), SC_REMOVE )==0 )
+                    p = findProcess(shrid, Revision::SrcLangSc);
+
                 if ( p!=NULL ) {
                     processes.removeOne(p);
 
@@ -171,7 +226,7 @@ QList<Revision *> Engine::getRevisions()
     return revisions;
 }
 
-Process * Engine::findProcess(int procId, int srcLang) {
+Process * Engine::findProcess(int procId, Revision::SrcLangType srcLang) {
     Process *curr;
     foreach (curr, processes) {
         if ( curr->id == procId &&
@@ -180,36 +235,4 @@ Process * Engine::findProcess(int procId, int srcLang) {
     }
     //in case we don't find anything
     return NULL;
-}
-
-void Engine::killChuckShred(Process *p)
-{
-    //copied from above, TODO refactor this
-    int shrid = p->id;
-
-    char buffer[OUTPUT_BUFFER_SIZE];
-    osc::OutboundPacketStream pstream( buffer, OUTPUT_BUFFER_SIZE );
-
-    pstream << osc::BeginMessage( CHUCK_REMOVE ) <<
-            shrid << osc::EndMessage;
-
-    //outSocket.Send( p.Data(), p.Size() );
-    outSocket->writeDatagram( pstream.Data(), pstream.Size(),
-                              QHostAddress::LocalHost, PORT_SEND );
-}
-
-void Engine::killProcess(Process *p)
-{
-    if( p->rev->srcLang == Revision::SRCLANG_CHUCK )
-    {
-        killChuckShred( p );
-    }
-    else if ( p->rev->srcLang == Revision::SRCLANG_SC )
-    {
-
-    }
-    else {
-
-    }
-
 }

@@ -5,10 +5,6 @@
 //declare the static object
 QMap<QString, int> Revision::maxPathRevision;
 
-const int Revision::SRCLANG_CHUCK = 1;
-const int Revision::SRCLANG_SC = 2;
-const int Revision::SRCLANG_UNKNOWN = 3;
-
 /* A new revision here */
 Revision::Revision(QString srcFilePath) :
     parent(NULL),
@@ -149,17 +145,19 @@ void Revision::addChild(Revision *child)
     children << child;
 }
 
-int Revision::chooseSrcLang(QString srcFilePath)
+Revision::SrcLangType Revision::chooseSrcLang(QString srcFilePath)
 {
     QFileInfo info(srcFilePath);
+    QString suffix = info.suffix();
 
-    if ( info.suffix().compare("ck")==0 ) {
-        return SRCLANG_CHUCK;
+    if ( suffix.compare("ck")==0 ) {
+        return SrcLangChuck;
     }
-    else if ( info.suffix().compare("sc")==0 ) {
-        return SRCLANG_SC;
+    else if ( suffix.compare("sc")==0 ||
+              suffix.compare("scd")==0 ) {
+        return SrcLangSc;
     }
     else {
-        return SRCLANG_UNKNOWN;
+        return SrcLangUnk;
     }
 }

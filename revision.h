@@ -16,11 +16,10 @@ public:
     Revision (Revision *prev); //branch
 
     static QMap<QString, int> maxPathRevision;
-    static const int SRCLANG_CHUCK;
-    static const int SRCLANG_SC;
-    static const int SRCLANG_UNKNOWN;
 
-    static int chooseSrcLang(QString srcFilePath);
+    enum SrcLangType { SrcLangChuck, SrcLangSc, SrcLangUnk };
+
+    static SrcLangType chooseSrcLang(QString srcFilePath);
 
     QString getDisplayName();
     QString getBufferName();
@@ -37,7 +36,7 @@ public:
     bool hasShredded;
     bool hasSaved;
 
-    int srcLang;
+    SrcLangType srcLang;
 
     void addChild(Revision *child);
     int countNodes();

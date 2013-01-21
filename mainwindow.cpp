@@ -172,7 +172,7 @@ void MainWindow::on_actionAdd_Shred_triggered()
         filePath = filePath.split(':').at(1);
 #endif
 
-        engine->shredFile( filePath, edit->rev->getID() );
+        engine->makeProcess(filePath, edit->rev );
     }
 
 }

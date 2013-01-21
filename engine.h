@@ -15,9 +15,8 @@ public:
     ~Engine();
 
     void sendTestMessage();
-    void shredFile(QString filePath, int revID);
-    void killChuckShred(Process *p);
-    Process *findProcess(int procId, int srcLang);
+    void makeProcess(QString filePath, Revision *r);
+    Process *findProcess(int procId, Revision::SrcLangType);
     Revision *findRevision(int revId);
 
     void addRevision(Revision *);
