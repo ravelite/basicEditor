@@ -23,8 +23,7 @@ SOURCES += main.cpp\
     revtree.cpp \
     mw_macros.cpp \
     codearea.cpp \
-    engine.cpp \
-    treevis.cpp
+    engine.cpp
 
 HEADERS  += mainwindow.h \
     oscpack/ip/TimerListener.h \
@@ -44,8 +43,7 @@ HEADERS  += mainwindow.h \
     process.h \
     revtree.h \
     codearea.h \
-    engine.h \
-    treevis.h
+    engine.h
 
 FORMS    += mainwindow.ui
 
