@@ -1,26 +1,32 @@
 unAudicle issue tracking
 
 * BUGS
-** DONE When creating new revision, old revision not preserved.
-   The fix works like this:
-   Before you undo the parent buffer, disconnect textChanged() signal.
-   Then after you undo, you can reconnect it.
-** DONE Bugs with gridlayout when getting rid of shreds.
-   This is not a bug anymore, we don't use the gridLayout-based anymore.
-** DONE We lose focus after creating the new buffers.
-   Calling setActiveSubWindow() after creating window does the trick.
-** DONE When we don't have focus, the shredding function doesn't work.
-   We use the subWindowList with stacking order to get top window.
+** FIXED
+   :VISIBILITY: folded
 
-** DONE After creating a new revision, selection in tree widget does not follow.
-   created a signal in codeArea, selectedRevision, and connected it to shredTree
-** DONE Indented items too-far indented past next columns.
-   This was fixed by expanding the columns if they overflow.
-   Then you have to scroll, but this is relatively painless.
-*** One idea to fix this was custom renderer that alters indent system.
-    Though this appears to be difficult, easy event logic in QTreeViewPrivate.
-*** Another idea is just changing global indent to scale widest range.
-    This would have the advantage of working well with filtering techniques.
+*** DONE When creating new revision, old revision not preserved.
+    The fix works like this:
+    Before you undo the parent buffer, disconnect textChanged() signal.
+    Then after you undo, you can reconnect it.
+*** DONE Bugs with gridlayout when getting rid of shreds.
+    This is not a bug anymore, we don't use the gridLayout-based anymore.
+*** DONE We lose focus after creating the new buffers.
+    Calling setActiveSubWindow() after creating window does the trick.
+*** DONE When we don't have focus, the shredding function doesn't work.
+    We use the subWindowList with stacking order to get top window.
+*** DONE After creating a new revision, selection in tree widget does not follow.
+    created a signal in codeArea, selectedRevision, and connected it to shredTree
+*** DONE Indented items too-far indented past next columns.
+    This was fixed by expanding the columns if they overflow.
+    Then you have to scroll, but this is relatively painless.
+**** One idea to fix this was custom renderer that alters indent system.
+     Though this appears to be difficult, easy event logic in QTreeViewPrivate.
+**** Another idea is just changing global indent to scale widest range.
+     This would have the advantage of working well with filtering techniques.
+*** DONE File, New Buffer doesn't actually work yet. It should.
+    First pass for this done.
+
+
 ** TODO crashing bug
    Open a file, close the editor window, open another file,
    then select the previous file via the tree.
@@ -30,9 +36,8 @@ unAudicle issue tracking
 ** TODO short lived shreds bubbles stay around
    And if you click on them they don't go away.
 ** TODO on Mac, 10th shred doesn't show up (maybe display error)
-** DONE File, New Buffer doesn't actually work yet. It should.
-   First pass for this done.
-
+** TODO on other Windows machine
+   Code is reaching Supercollider fine, but UA not getting messages.
 ** Inactive
 *** TODO After creating a few revisions and shredding them,
     text in buffer does not match the text that successfully shredded.
@@ -54,6 +59,8 @@ unAudicle issue tracking
 ** TODO Try using FileDrop to run chuck --add from command line.
 ** TODO Or support other file formats by adding a command string.
 
+** TODO Do some sort of interactive search on revision text.
+
 ** Inactive
 *** TODO Make a better revision tree visualization.
 **** Try implementing the ordered tree layout algorithm in trees.pdf.
@@ -68,4 +75,3 @@ unAudicle issue tracking
 
 * Stupid Feature Ideas
 ** Make a configurable splash screen.
-
