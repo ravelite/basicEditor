@@ -38,6 +38,9 @@ unAudicle issue tracking
 ** TODO on Mac, 10th shred doesn't show up (maybe display error)
 ** TODO on other Windows machine
    Code is reaching Supercollider fine, but UA not getting messages.
+   editor was failing to bind already-bound port 7001.
+*** TODO report this error condition in startup somehow
+*** TODO make the editor port easily configurable
 ** Inactive
 *** TODO After creating a few revisions and shredding them,
     text in buffer does not match the text that successfully shredded.
