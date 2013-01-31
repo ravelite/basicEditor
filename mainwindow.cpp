@@ -62,6 +62,7 @@ MainWindow::MainWindow(QWidget *parent) :
              shredTree, SLOT(addRevision(Revision*)) );
 
     QDockWidget *dock = new QDockWidget();
+    dock->setFeatures( QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetFloatable );
     dock->setWidget( shredTree );
     addDockWidget( Qt::RightDockWidgetArea, dock );
 

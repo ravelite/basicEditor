@@ -24,7 +24,8 @@ Engine::Engine(QObject *parent) :
     outSocket( new QUdpSocket(this) ),
     inSocket( new QUdpSocket(this) )
 {
-    inSocket->bind(QHostAddress::LocalHost, PORT_RECV);
+    if ( !inSocket->bind(QHostAddress::LocalHost, PORT_RECV) )
+        std::cout << "Failed to bind port " << PORT_RECV << std::endl;
 
     connect(inSocket, SIGNAL(readyRead()),
             this, SLOT(readPendingDatagrams()));

@@ -42,6 +42,9 @@ void CodeArea::addCodeWindow(Revision *r, QString fileText, int cursorPos = 0)
     subWindow->showMaximized();
     subWindow->setWindowTitle( edit->rev->getBufferName() );
 
+    //don't delete windows when closed
+    subWindow->setAttribute(Qt::WA_DeleteOnClose, false);
+
     //add to subwindow maps
     subWindowMap[r] = subWindow;
     subWindowMap2[subWindow] = r;
@@ -67,7 +70,15 @@ void CodeArea::addCodeWindow(Revision *r, QString fileText, int cursorPos = 0)
 //TODO: debug, this seems circular, maybe not necessary
 void CodeArea::selectRevision(Revision *r)
 {
-    setActiveSubWindow( subWindowMap[r] );
+    QMdiSubWindow *sub = subWindowMap[r];
+
+    //if we closed the window and it is invisible, make it visible
+    if ( sub && !sub->isVisible() )
+    {
+        sub->show(); sub->widget()->show();
+    }
+
+    setActiveSubWindow( sub );
 }
 
 void CodeArea::fireSelectRevision(QMdiSubWindow *sub)

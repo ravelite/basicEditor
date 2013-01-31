@@ -25,31 +25,32 @@ unAudicle issue tracking
      This would have the advantage of working well with filtering techniques.
 *** DONE File, New Buffer doesn't actually work yet. It should.
     First pass for this done.
+    
+** Inactive
+   :VISIBILITY: folded
+*** TODO After creating a few revisions and shredding them,
+    text in buffer does not match the text that successfully shredded.
+    Not sure if this bug still exists.
 
 
-** TODO crashing bug
+** DONE crashing bug
    Open a file, close the editor window, open another file,
    then select the previous file via the tree.
 ** TODO non-crashing bug
    Open a file, close the editor window, reopen file.
    you get another revision version. (or just open same file twice)
-** TODO short lived shreds bubbles stay around
+** TODO (ChucK) short lived shreds bubbles stay around
    And if you click on them they don't go away.
 ** TODO on Mac, 10th shred doesn't show up (maybe display error)
 ** TODO on other Windows machine
    Code is reaching Supercollider fine, but UA not getting messages.
    editor was failing to bind already-bound port 7001.
-*** TODO report this error condition in startup somehow
+*** DONE report this error condition in startup somehow
+    Should print on stdout.
 *** TODO make the editor port easily configurable
-** Inactive
-*** TODO After creating a few revisions and shredding them,
-    text in buffer does not match the text that successfully shredded.
-    Not sure if this bug still exists.
 
 * Feature Ideas
-** DONE Support Supercollider.
-*** 1. Option one: named pipes, QProcess, parsing returns.
-*** 2. *Option two*: more like build an OSCUDP api like before.
+** DONE Support Supercollider (through OSC over UDP)
 *** TODO bug: file selector for open file only has *.ck files as option
 *** TODO change name of shred file action
 

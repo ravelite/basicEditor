@@ -12,7 +12,6 @@
 #include "process.h"
 #include "codearea.h"
 #include "engine.h"
-#include "treevis.h"
 
 namespace Ui {
 class MainWindow;
@@ -42,8 +41,6 @@ private:
     //QWidget *shredTree;
     RevTree *shredTree;
     Engine *engine;
-
-    TreeVis *treevis;
 
     QString sessionName;
     QVariantMap macros;
