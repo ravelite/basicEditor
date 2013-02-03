@@ -48,6 +48,7 @@ unAudicle issue tracking
 *** DONE report this error condition in startup somehow
     Should print on stdout.
 *** TODO make the editor port easily configurable
+** TODO File->New automatically makes a .ck file
 
 * Feature Ideas
 ** DONE Support Supercollider (through OSC over UDP)
