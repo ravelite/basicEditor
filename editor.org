@@ -66,6 +66,10 @@ unAudicle issue tracking
 
 ** TODO Do some sort of interactive search on revision text.
 
+** Adapt the code and add to SCIDE as a docklet.
+   Instead of tracking changes to buffers, can record each executed block,
+   then bringing them up in a new buffer, associated with the process.
+
 ** Inactive
 *** TODO Make a better revision tree visualization.
 **** Try implementing the ordered tree layout algorithm in trees.pdf.
