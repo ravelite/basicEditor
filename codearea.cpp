@@ -3,6 +3,7 @@
 #include <QAction>
 #include "codeedit.h"
 #include <QMdiSubWindow>
+#include "superwordhighlighter.h"
 
 CodeArea::CodeArea(QWidget *parent) :
     QMdiArea(parent)
@@ -36,6 +37,10 @@ void CodeArea::addCodeWindow(Revision *r, QString fileText, int cursorPos = 0)
     CodeEdit *edit = new CodeEdit(this);
     edit->setPlainText( fileText );
     edit->rev = r;
+
+    //set highlighter no matter what language, dirty hack
+    SuperWordHighlighter *wh =
+            new SuperWordHighlighter(edit->document());
 
     //setup the subwindow
     QMdiSubWindow *subWindow = addSubWindow( edit );

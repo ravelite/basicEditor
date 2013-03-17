@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     revtree.cpp \
     mw_macros.cpp \
     codearea.cpp \
-    engine.cpp
+    engine.cpp \
+    superwordhighlighter.cpp
 
 HEADERS  += mainwindow.h \
     oscpack/ip/TimerListener.h \
@@ -43,7 +44,8 @@ HEADERS  += mainwindow.h \
     process.h \
     revtree.h \
     codearea.h \
-    engine.h
+    engine.h \
+    superwordhighlighter.h
 
 FORMS    += mainwindow.ui
 

@@ -196,12 +196,14 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionNew_triggered()
 {
+    QString ext = "sc"; //dirty HACK
+
     /* search for nonextant file for the new file */
     int seqNum = 0;
     QString filePath;
     QFileInfo info;
     do {
-        filePath = QString("file%1.ck").arg(QString::number(++seqNum));
+        filePath = QString("file%1.%2").arg(QString::number(++seqNum), ext);
         info.setFile(filePath);
     } while( info.exists() );
 
