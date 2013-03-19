@@ -17,6 +17,8 @@ To use the unaudicle with ChucK, you will need to run the lightweight
 shell that communicates with the editor using OSC over UDP.
 To do this, run oscShell.ck using the miniAudicle or command-line ChucK.
 
+Similarly, to use it with SuperCollider, you need to run Sculos.start(this) in Startup.
+
 Then you should be able to use the Add Shred action from unaudicle.
 
 * How to use it
