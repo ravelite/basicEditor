@@ -8,7 +8,8 @@ SuperWordHighlighter::SuperWordHighlighter(QTextDocument *document) :
     classFormat.setForeground(Qt::darkBlue);
     classFormat.setFontWeight(QFont::Bold);
     QStringList keywordPatterns;
-    keywordPatterns << "\\bPbind\\b" << "\\bPloop\\b" << "\\bPseries\\b";
+    keywordPatterns << "\\bPbind\\b" << "\\bPloop\\b" << "\\bPseries\\b"
+                    << "\\bPpatlace\\b" << "\\bPmono\\b";
 
     foreach (const QString &pattern, keywordPatterns) {
         rule.pattern = QRegExp(pattern);

@@ -50,6 +50,8 @@ unAudicle issue tracking
 *** TODO make the editor port easily configurable
 ** TODO File->New automatically makes a .ck file
 
+** TODO Text size should be preserved when making new revisions
+
 * Feature Ideas
 ** DONE Support Supercollider (through OSC over UDP)
 *** TODO bug: file selector for open file only has *.ck files as option
