@@ -17,7 +17,7 @@ public:
     void ignoreChanges();
 
 protected:
-    void wheelEvent(QWheelEvent *e);
+    //void wheelEvent(QWheelEvent *e);
 
     //void inputMethodEvent(QInputMethodEvent *ev);
     //void changeEvent(QEvent *e);
@@ -27,6 +27,7 @@ signals:
     
 public slots:
     void onTextChanged();
+    void onZoomChanged(int fontSize);
 
 private:
     void updateTitle();

@@ -13,22 +13,32 @@ CodeEdit::CodeEdit(QWidget *parent) :
     setFont( fixedFont );
 }
 
+/*
 void CodeEdit::wheelEvent(QWheelEvent *ev)
 {
+    //first, CodeArea should update its fontSize
+    //then, update of all of the windows
+
+    CodeArea *area = (CodeArea*) this->parentWidget();
+
     if ( ev->modifiers() & Qt::ControlModifier ) {
 
         ev->accept();
         if ( ev->delta() > 0 )
-            zoomIn( 1 );
+            ++(area->fontSize);
         else if ( ev->delta() < 0 )
-            zoomOut( 1 );
+            --(area->fontSize);
+
+         onZoomChanged( area->fontSize );
 
         ensureCursorVisible();
     }
     else
         QTextEdit::wheelEvent(ev);
 
+    QTextEdit::wheelEvent(ev);
 }
+*/
 
 void CodeEdit::listenChanges()
 {
@@ -100,6 +110,19 @@ void CodeEdit::onTextChanged()
 
         area->addCodeWindow(r, bufferTextChanged, cursorPos); //make a code window
     }
+}
+
+void CodeEdit::onZoomChanged(int fontSize)
+{
+    /*int fontDiff = fontSize-fontPointSize();
+    if (fontDiff > 0)
+        zoomIn(fontDiff);
+    if (fontDiff < 0)
+        zoomIn(fontDiff);*/
+
+   QFont f = font();
+   f.setPointSize(fontSize);
+   setFont(f);
 }
 
 /*

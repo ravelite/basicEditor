@@ -2,6 +2,9 @@
 
 #include <QTreeWidgetItemIterator>
 
+#include "revtreeitem.h"
+#include "proctreeitem.h"
+
 const int RevTree::REV_TYPE = 1001;
 const int RevTree::PROC_TYPE = 1002;
 
@@ -41,12 +44,8 @@ void RevTree::addRevision(Revision *r)
 {
     //TODO: dirty hack for multiple adding of revs, fix
     if ( !revMap.contains(r) ) {
-        QStringList str;
-        //str << r->getDisplayName();
-        str << r->getShortName();
-        //str << QString::number( r->getID() );
 
-        QTreeWidgetItem *item = new QTreeWidgetItem(str, REV_TYPE);
+        RevTreeItem *item = new RevTreeItem(r);
 
         if ( flattenTree || r->parent==NULL )
             addTopLevelItem(item);
@@ -77,15 +76,18 @@ void RevTree::selectRevision(Revision *r)
 
 void RevTree::addProcess(Process *p)
 {
-    QStringList str;
+    /* QStringList str;
     str << QString::number( p->id );
     str << "";
 
     QTreeWidgetItem *item =
             new QTreeWidgetItem(str, RevTree::PROC_TYPE);
+    */
+    ProcTreeItem *item = new ProcTreeItem(p);
+
     revMap[p->rev]->addChild( item );
 
-    item->setHidden(true); //make it invisible
+    item->setHidden(true); //make it invisible after adding
 
     //add the mapping for this item
     procMap[p] = item;
@@ -115,6 +117,15 @@ void RevTree::updateParentRevision( Revision *r )
     for (int i=procNum+1; i<columnCount(); i++)
         item->setText(i, "");
 }
+
+//update revision name to remove modifiers
+/*
+void RevTree::updateRevisionName( Revision *r )
+{
+    QTreeWidgetItem *item = revMap[r];
+    item->setText(0, "" );
+}
+*/
 
 void RevTree::requestRemoveChildProcess(QTreeWidgetItem *item, int t)
 {

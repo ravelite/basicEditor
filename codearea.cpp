@@ -5,8 +5,10 @@
 #include <QMdiSubWindow>
 #include "superwordhighlighter.h"
 
+#include <iostream>
+
 CodeArea::CodeArea(QWidget *parent) :
-    QMdiArea(parent)
+    QMdiArea(parent), fontSize(10) //TODO make a const
 {
     //set up left and right actions to shuffle through buffers
     QAction *leftAction = new QAction(this);
@@ -70,7 +72,56 @@ void CodeArea::addCodeWindow(Revision *r, QString fileText, int cursorPos = 0)
     //edit->focusWidget();
     setActiveSubWindow( subWindow );
 
+    //listen to zoom changes
+    connect( this, SIGNAL(updateZoom(int)), edit, SLOT(onZoomChanged(int)) );
+
 }
+
+void CodeArea::wheelEvent(QWheelEvent *ev)
+{
+    if ( ev->modifiers() & Qt::ControlModifier ) {
+
+        ev->accept();
+        if ( ev->delta() > 0 )
+        {
+            ++fontSize;
+            if (fontSize > 30)
+                fontSize=30;
+
+            updateZoom(fontSize);
+        }
+        else if ( ev->delta() < 0 )
+        {
+            --fontSize;
+            if (fontSize < 6)
+                fontSize=6;
+
+            updateZoom(fontSize);
+        }
+
+    } else
+        QMdiArea::wheelEvent(ev);
+}
+
+/*
+void CodeArea::wheelEvent(QWheelEvent *ev)
+{
+    qDebug( "wheel event in CodeArea" );
+
+    if ( ev->modifiers() & Qt::ControlModifier ) {
+
+        ev->accept();
+        if ( ev->delta() > 0 )
+            ++fontSize;
+        else if ( ev->delta() < 0 )
+            --fontSize;
+
+        //ensureCursorVisible();
+    }
+    else
+        QMdiArea::wheelEvent(ev);
+}
+*/
 
 //TODO: debug, this seems circular, maybe not necessary
 void CodeArea::selectRevision(Revision *r)
