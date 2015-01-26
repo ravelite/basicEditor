@@ -45,7 +45,13 @@ void RevTree::addRevision(Revision *r)
     //TODO: dirty hack for multiple adding of revs, fix
     if ( !revMap.contains(r) ) {
 
+        //update display of other revisions
+        updateRevisionDisplay();
+
         RevTreeItem *item = new RevTreeItem(r);
+
+        //change the display
+        item->setText(0, r->getDisplayName().prepend("&"));
 
         if ( flattenTree || r->parent==NULL )
             addTopLevelItem(item);
@@ -57,6 +63,10 @@ void RevTree::addRevision(Revision *r)
         //add the mapping for this item
         revMap[r] = item;
         revMapRight[item] = r;
+
+        //connect to display update
+        connect( this, SIGNAL(updateRevisionDisplay()),
+                 item, SLOT(updateDisplay()) );
 
         //resize column if needed
         if ( sizeHintForColumn(0) > columnWidth(0) )

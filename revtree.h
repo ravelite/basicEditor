@@ -35,6 +35,9 @@ signals:
 
     void requestRemoveProcess( Process *p );
 
+    //this is mainly to show which revision is HEAD
+    void updateRevisionDisplay();
+
 private:
     QMap<Revision *, QTreeWidgetItem *> revMap;
     QMap<QTreeWidgetItem *, Revision *> revMapRight;

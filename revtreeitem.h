@@ -13,7 +13,7 @@ public:
     explicit RevTreeItem(Revision *r);
 
 public slots:
-    void refreshName(void);
+    void updateDisplay(void);
 
 signals:
 

@@ -6,7 +6,7 @@ RevTreeItem::RevTreeItem(Revision *r) :
     setText( 0, r->getShortName() );
 }
 
-void RevTreeItem::refreshName()
+void RevTreeItem::updateDisplay()
 {
     setText( 0, rev->getShortName() );
 }
