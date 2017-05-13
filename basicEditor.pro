@@ -55,5 +55,26 @@ FORMS    += mainwindow.ui
 
 #LIBS += Ws2_32.lib WINMM.LIB
 
+
+
+release {
+    install_it.path = $$OUT_PWD/release
+}
+install_it.files += "c:\\eula.1028.txt"
+
+#QTBINPATH = "c:\\Qt\\4.8.6\\bin"
+QTBINPATH = "C:\\QtSDK\\Desktop\\Qt\\4.8.0\\msvc2008\\bin"
+dllset.path = $$OUT_PWD/release
+dllset.files += $$QTBINPATH/QtGui4.dll
+dllset.files += $$QTBINPATH/QtScript4.dll
+dllset.files += $$QTBINPATH/QtCore4.dll
+dllset.files += $$QTBINPATH/libwinpthread-1.dll
+#dllset.files += $$QTBINPATH/libstdc++-6.dll
+dllset.files += $$QTBINPATH/QtNetwork4.dll
+
+#copy files after build
+INSTALLS += install_it dllset
+
 OTHER_FILES += \
     macros.qs editor.org
+
