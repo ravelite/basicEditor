@@ -55,12 +55,13 @@ FORMS    += mainwindow.ui
 
 #LIBS += Ws2_32.lib WINMM.LIB
 
-
+OTHER_FILES += \
+    macros.qs editor.org
 
 release {
     install_it.path = $$OUT_PWD/release
 }
-install_it.files += "c:\\eula.1028.txt"
+install_it.files += macros.qs
 
 #QTBINPATH = "c:\\Qt\\4.8.6\\bin"
 QTBINPATH = "C:\\QtSDK\\Desktop\\Qt\\4.8.0\\msvc2008\\bin"
@@ -75,6 +76,5 @@ dllset.files += $$QTBINPATH/QtNetwork4.dll
 #copy files after build
 INSTALLS += install_it dllset
 
-OTHER_FILES += \
-    macros.qs editor.org
+
 

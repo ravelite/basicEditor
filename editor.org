@@ -33,6 +33,13 @@ unAudicle issue tracking
     Not sure if this bug still exists.
 
 
+** TODO When starting a new file, it assumes it is *.sc
+   Then doesn't allow Save As (does it?) and henceforth assumes SC
+   for the commands, then doesn't get to chuck VM/chulos.
+
+** TODO No feedback from OSC commands,
+   no way to know state of connection, what happened with command.
+
 ** DONE crashing bug
    Open a file, close the editor window, open another file,
    then select the previous file via the tree.
@@ -53,6 +60,12 @@ unAudicle issue tracking
 ** TODO Text size should be preserved when making new revisions
 
 * Feature Ideas
+
+** TODO Add some sort of status window.
+
+** TODO Add automatic running of chuck plus libraries, 
+   perhaps through the magic of scripting?
+
 ** DONE Support Supercollider (through OSC over UDP)
 *** TODO bug: file selector for open file only has *.ck files as option
 *** TODO change name of shred file action
