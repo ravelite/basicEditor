@@ -72,6 +72,9 @@ unAudicle issue tracking
 
 ** Automatically delete empty sessions.
 ** TODO Save information for replaying a session.
+   This would be great.
+   Also just to load the session with the revision tree,
+   to be able to replay parts of it.
 ** Make a shred action "fadeOut".
 ** Extend and use the macro system (maybe with arg macros)
    to support global variable declarations in chuck.
