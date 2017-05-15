@@ -34,6 +34,12 @@ private slots:
     void on_actionSave_triggered();
     void on_actionNew_triggered();
 
+    void on_actionChuckMode_triggered();
+
+    void on_actionSCMode_triggered();
+
+    void on_actionToggle_Mode_triggered();
+
 private:
     Ui::MainWindow *ui;
 
@@ -49,11 +55,15 @@ private:
     int seqRequest;
     int nBuffers;
 
+    enum LangMode { chuckMode, scMode };
+    LangMode langMode;
+
     //functions
     bool saveFile(QString filePath, QString textContent);
     QString applyMacros(QString text);
     void createSessionDirectory();
     void loadMacros();
+    void updateModeChecks();
 };
 
 #endif // MAINWINDOW_H

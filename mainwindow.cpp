@@ -26,9 +26,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     codeArea( new CodeArea(this) ),
     engine( new Engine(this )),
-    seqRequest( 0 ), nBuffers( 0 )
+    seqRequest( 0 ), nBuffers( 0 ),
+    langMode( chuckMode )
 {
     ui->setupUi(this);
+
+    //check the mode that's active
+    updateModeChecks();
 
     this->setCentralWidget(codeArea);
 
@@ -196,7 +200,12 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionNew_triggered()
 {
-    QString ext = "sc"; //dirty HACK
+    QString ext;
+    if (langMode == scMode) {
+        ext = "sc"; //dirty HACK
+    } else {
+        ext = "ck";
+    }
 
     /* search for nonextant file for the new file */
     int seqNum = 0;
@@ -212,4 +221,41 @@ void MainWindow::on_actionNew_triggered()
 
     //engine notifies views that a revision has been added
     engine->addRevision(r);
+}
+
+//update menu checkboxes showing mode
+void MainWindow::updateModeChecks()
+{
+    if (langMode == chuckMode)
+    {
+        ui->actionChuckMode->setChecked(true);
+        ui->actionSCMode->setChecked(false);
+    }
+    else
+    {
+        ui->actionChuckMode->setChecked(false);
+        ui->actionSCMode->setChecked(true);
+    }
+}
+
+void MainWindow::on_actionChuckMode_triggered()
+{
+    langMode = chuckMode;
+    updateModeChecks();
+}
+
+void MainWindow::on_actionSCMode_triggered()
+{
+    langMode = scMode;
+    updateModeChecks();
+}
+
+void MainWindow::on_actionToggle_Mode_triggered()
+{
+    if (langMode == chuckMode) {
+        langMode = scMode;
+    } else {
+        langMode = chuckMode;
+    }
+    updateModeChecks();
 }
