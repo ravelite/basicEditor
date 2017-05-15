@@ -40,7 +40,16 @@
     </property>
     <addaction name="actionAdd_Shred"/>
    </widget>
+   <widget class="QMenu" name="menuMode">
+    <property name="title">
+     <string>Mode</string>
+    </property>
+    <addaction name="actionChuckMode"/>
+    <addaction name="actionSCMode"/>
+    <addaction name="actionToggle_Mode"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuMode"/>
    <addaction name="menuChucK"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -88,6 +97,27 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionChuckMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>ChucK mode</string>
+   </property>
+  </action>
+  <action name="actionSCMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Supercollider mode</string>
+   </property>
+  </action>
+  <action name="actionToggle_Mode">
+   <property name="text">
+    <string>Toggle Mode</string>
    </property>
   </action>
  </widget>
