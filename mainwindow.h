@@ -58,6 +58,8 @@ private:
     enum LangMode { chuckMode, scMode };
     LangMode langMode;
 
+    bool sessionDirCreated;
+
     //functions
     bool saveFile(QString filePath, QString textContent);
     QString applyMacros(QString text);

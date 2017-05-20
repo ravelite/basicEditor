@@ -27,7 +27,8 @@ MainWindow::MainWindow(QWidget *parent) :
     codeArea( new CodeArea(this) ),
     engine( new Engine(this )),
     seqRequest( 0 ), nBuffers( 0 ),
-    langMode( chuckMode )
+    langMode( chuckMode ),
+    sessionDirCreated(false)
 {
     ui->setupUi(this);
 
@@ -80,7 +81,12 @@ MainWindow::MainWindow(QWidget *parent) :
     resize(800,500);
 
     engine->sendTestMessage();
-    createSessionDirectory();
+
+    //createSessionDirectory();
+    //createSessionDirectory();
+    sessionName =
+       "session" + QDateTime::currentDateTime().toString( Qt::ISODate ).replace(':','.');
+
     loadMacros();
 }
 
@@ -94,11 +100,13 @@ void MainWindow::createSessionDirectory()
 {
     //create a session directory
     QDir dir;
-    sessionName =
-       "session" + QDateTime::currentDateTime().toString( Qt::ISODate ).replace(':','.');
     if ( !dir.mkdir( sessionName ) )
     {
         std::cerr << "Problems creating session directory." << std::endl;
+    }
+    else
+    {
+        sessionDirCreated = true;
     }
 }
 
@@ -165,6 +173,12 @@ void MainWindow::on_actionAdd_Shred_triggered()
     QString sessionRel = sessionName + "/" + edit->rev->getBufferName();
 
     QString progText = applyMacros( edit->toPlainText() );
+
+    //lazy create directory if it doesn't exist
+    if ( !sessionDirCreated )
+    {
+        createSessionDirectory();
+    }
 
     //strategy: save a copy in session directory
     if ( saveFile( sessionRel, progText ) ) {
