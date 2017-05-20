@@ -21,7 +21,7 @@ protected:
 
     //void inputMethodEvent(QInputMethodEvent *ev);
     //void changeEvent(QEvent *e);
-    //void keyPressEvent ( QKeyEvent * e );
+    void keyPressEvent ( QKeyEvent * e );
     
 signals:
     

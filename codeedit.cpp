@@ -51,6 +51,19 @@ void CodeEdit::ignoreChanges()
     disconnect( this, SIGNAL(textChanged()) );
 }
 
+//change tabs to spaces
+void CodeEdit::keyPressEvent(QKeyEvent *e)
+{
+    if (e->key() == Qt::Key_Tab)
+    {
+        e->accept();
+        this->insertPlainText("   ");
+    }
+    else {
+        QTextEdit::keyPressEvent(e);
+    }
+}
+
 void CodeEdit::undoChanges()
 {
     disconnect( this );
