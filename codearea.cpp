@@ -33,7 +33,8 @@ CodeArea::CodeArea(QWidget *parent) :
     setActivationOrder( QMdiArea::StackingOrder );
 }
 
-void CodeArea::addCodeWindow(Revision *r, QString fileText, int cursorPos = 0)
+void CodeArea::addCodeWindow(Revision *r, QString fileText,
+                             int cursorPos, int fontSize)
 {
     //setup the widget
     CodeEdit *edit = new CodeEdit(this);
@@ -62,6 +63,13 @@ void CodeArea::addCodeWindow(Revision *r, QString fileText, int cursorPos = 0)
         QTextCursor cursor = edit->textCursor();
         cursor.setPosition( cursorPos );
         edit->setTextCursor( cursor );
+    }
+
+    if ( fontSize > 0 )
+    {
+        QFont f = edit->font();
+        f.setPointSize(fontSize);
+        edit->setFont(f);
     }
 
     notifyNewRevision(r);

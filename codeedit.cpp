@@ -57,7 +57,7 @@ void CodeEdit::keyPressEvent(QKeyEvent *e)
     if (e->key() == Qt::Key_Tab)
     {
         e->accept();
-        this->insertPlainText("   ");
+        this->insertPlainText("    ");
     }
     else {
         QTextEdit::keyPressEvent(e);
@@ -121,7 +121,7 @@ void CodeEdit::onTextChanged()
 
         undoText = toPlainText();
 
-        area->addCodeWindow(r, bufferTextChanged, cursorPos); //make a code window
+        area->addCodeWindow(r, bufferTextChanged, cursorPos, font().pointSize() ); //make a code window
     }
 }
 

@@ -18,7 +18,7 @@ class CodeArea : public QMdiArea
 public:
     explicit CodeArea(QWidget *parent = 0);
     
-    void addCodeWindow(Revision *r, QString fileText, int cursorPos);
+    void addCodeWindow(Revision *r, QString fileText, int cursorPos=0, int fontSize=-1);
 
     int fontSize; //global font size
 
