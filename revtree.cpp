@@ -28,7 +28,8 @@ RevTree::RevTree(QWidget *parent) :
              this, SLOT(itemClick(QTreeWidgetItem*,int)) );
 
     //options for appearance
-    setIndentation(8);
+    //setIndentation(8);
+    setIndentation(1);
     setHeaderHidden(true);
 
     //keep double-clicks from expanding/collapsing for all columns
