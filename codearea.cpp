@@ -4,6 +4,7 @@
 #include "codeedit.h"
 #include <QMdiSubWindow>
 #include "superwordhighlighter.h"
+#include "chuckhighlighter.h"
 
 #include <iostream>
 
@@ -42,8 +43,14 @@ void CodeArea::addCodeWindow(Revision *r, QString fileText,
     edit->rev = r;
 
     //set highlighter no matter what language, dirty hack
-    SuperWordHighlighter *wh =
-            new SuperWordHighlighter(edit->document());
+    //SuperWordHighlighter *wh =
+    //        new SuperWordHighlighter(edit->document());
+
+    if ( r->srcLang == Revision.SrcLangChuck )
+    {
+        ChuckHighlighter *ch =
+                new ChuckHighlighter(edit->document());
+    }
 
     //setup the subwindow
     QMdiSubWindow *subWindow = addSubWindow( edit );

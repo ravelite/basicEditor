@@ -9,19 +9,21 @@ class SuperWordHighlighter : public QSyntaxHighlighter
 public:
     SuperWordHighlighter(QTextDocument *document);
 
-protected:
-    void highlightBlock(const QString &text);
-
-private:
     struct HighlightingRule
     {
         QRegExp pattern;
         QTextCharFormat format;
     };
 
-    QTextCharFormat classFormat;
+protected:
+    void highlightBlock(const QString &text);
 
-    QVector<HighlightingRule> highlightingRules;
+    void keywordPatternsFormat(QStringList &, QTextCharFormat &);
+
+     QVector<HighlightingRule> highlightingRules;
+
+private:
+    //QTextCharFormat classFormat;
     
 };
 

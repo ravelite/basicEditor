@@ -26,7 +26,8 @@ SOURCES += main.cpp\
     engine.cpp \
     superwordhighlighter.cpp \
     revtreeitem.cpp \
-    proctreeitem.cpp
+    proctreeitem.cpp \
+    chuckhighlighter.cpp
 
 HEADERS  += mainwindow.h \
     oscpack/ip/TimerListener.h \
@@ -49,7 +50,8 @@ HEADERS  += mainwindow.h \
     engine.h \
     superwordhighlighter.h \
     revtreeitem.h \
-    proctreeitem.h
+    proctreeitem.h \
+    chuckhighlighter.h
 
 FORMS    += mainwindow.ui
 

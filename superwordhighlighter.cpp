@@ -3,6 +3,7 @@
 SuperWordHighlighter::SuperWordHighlighter(QTextDocument *document) :
     QSyntaxHighlighter(document)
 {
+    /*
     HighlightingRule rule;
 
     classFormat.setForeground(Qt::darkBlue);
@@ -16,6 +17,7 @@ SuperWordHighlighter::SuperWordHighlighter(QTextDocument *document) :
         rule.format = classFormat;
         highlightingRules.append(rule);
     }
+    */
 }
 
 void SuperWordHighlighter::highlightBlock(const QString &text)
@@ -28,5 +30,17 @@ void SuperWordHighlighter::highlightBlock(const QString &text)
             setFormat(index, length, rule.format);
             index = expression.indexIn(text, index + length);
         }
+    }
+}
+
+/* add the list of keywords with word boundaries */
+void SuperWordHighlighter::keywordPatternsFormat(QStringList &strList,
+                                                 QTextCharFormat &textFormat)
+{
+    HighlightingRule rule;
+    foreach (const QString &pattern, strList) {
+        rule.pattern = QRegExp( "\\b" + pattern + "\\b");
+        rule.format = textFormat;
+        highlightingRules.append(rule);
     }
 }
