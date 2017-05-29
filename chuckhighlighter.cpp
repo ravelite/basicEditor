@@ -21,18 +21,6 @@ ChuckHighlighter::ChuckHighlighter(QTextDocument *document):
     rule.format = quotationFormat;
     highlightingRules.append(rule);
 
-    //DO COMMENTS HERE
-
-    //single line comment rule
-    QTextCharFormat singleLineCommentFormat;
-    singleLineCommentFormat.setForeground(QColor::fromHsv(120,255,200));
-    rule.pattern = QRegExp("//[^\n]*");
-    rule.format = singleLineCommentFormat;
-    highlightingRules.append(rule);
-
-    //multiline comments require state
-    //http://doc.qt.io/qt-5/qtwidgets-richtext-syntaxhighlighter-example.html
-
     //NUMBER LITERALS?
 
 
@@ -99,6 +87,17 @@ ChuckHighlighter::ChuckHighlighter(QTextDocument *document):
 
     keywordPatternsFormat(kw4Patterns, kw4Format);
     keywordPatternsFormat(kw5Patterns, kw4Format);
+
+    //DO COMMENTS HERE
+
+    //single line comment rule
+    QTextCharFormat singleLineCommentFormat;
+    singleLineCommentFormat.setForeground(QColor::fromHsv(120,255,200));
+    rule.pattern = QRegExp("//[^\n]*");
+    rule.format = singleLineCommentFormat;
+    highlightingRules.append(rule);
+
+    //multiline comments dealt with in parent
 
 } //end of ChuckHighlighter constructor
 
