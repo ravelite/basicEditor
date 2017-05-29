@@ -46,7 +46,7 @@ void CodeArea::addCodeWindow(Revision *r, QString fileText,
     //SuperWordHighlighter *wh =
     //        new SuperWordHighlighter(edit->document());
 
-    if ( r->srcLang == Revision.SrcLangChuck )
+    if ( r->srcLang == Revision::SrcLangChuck )
     {
         ChuckHighlighter *ch =
                 new ChuckHighlighter(edit->document());

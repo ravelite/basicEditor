@@ -22,6 +22,10 @@ protected:
 
      QVector<HighlightingRule> highlightingRules;
 
+     QRegExp commentStartExpression, commentEndExpression;
+
+     QTextCharFormat multiLineCommentFormat;
+
 private:
     //QTextCharFormat classFormat;
     

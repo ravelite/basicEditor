@@ -1,27 +1,18 @@
 #include "superwordhighlighter.h"
 
 SuperWordHighlighter::SuperWordHighlighter(QTextDocument *document) :
-    QSyntaxHighlighter(document)
+    QSyntaxHighlighter(document),
+    commentStartExpression( "/\\*" ),
+    commentEndExpression( "\\*/" )
 {
-    /*
-    HighlightingRule rule;
 
-    classFormat.setForeground(Qt::darkBlue);
-    classFormat.setFontWeight(QFont::Bold);
-    QStringList keywordPatterns;
-    keywordPatterns << "\\bPbind\\b" << "\\bPloop\\b" << "\\bPseries\\b"
-                    << "\\bPpatlace\\b" << "\\bPmono\\b";
-
-    foreach (const QString &pattern, keywordPatterns) {
-        rule.pattern = QRegExp(pattern);
-        rule.format = classFormat;
-        highlightingRules.append(rule);
-    }
-    */
+    multiLineCommentFormat.setForeground(QColor::fromHsv(120,255,200));
+    multiLineCommentFormat.setFontWeight(QFont::Bold);
 }
 
 void SuperWordHighlighter::highlightBlock(const QString &text)
 {
+    //handle all of the keyword and other rules
     foreach (const HighlightingRule &rule, highlightingRules) {
         QRegExp expression(rule.pattern);
         int index = expression.indexIn(text);
@@ -31,7 +22,29 @@ void SuperWordHighlighter::highlightBlock(const QString &text)
             index = expression.indexIn(text, index + length);
         }
     }
-}
+
+    //handle multiline comments
+    setCurrentBlockState(0);
+
+    int startIndex = 0;
+    if (previousBlockState() != 1)
+        startIndex = commentStartExpression.indexIn(text);
+
+    while (startIndex >= 0) {
+        int endIndex = commentEndExpression.indexIn(text, startIndex);
+        int commentLength;
+        if (endIndex == -1) {
+            setCurrentBlockState(1);
+            commentLength = text.length() - startIndex;
+        } else {
+            commentLength = endIndex - startIndex
+                    + commentEndExpression.matchedLength();
+        }
+        setFormat(startIndex, commentLength, multiLineCommentFormat);
+        startIndex = commentStartExpression.indexIn(text, startIndex + commentLength);
+    }
+
+} //end of highlightBlock
 
 /* add the list of keywords with word boundaries */
 void SuperWordHighlighter::keywordPatternsFormat(QStringList &strList,
