@@ -5,6 +5,7 @@
 #include <QMdiSubWindow>
 #include "superwordhighlighter.h"
 #include "chuckhighlighter.h"
+#include "mainwindow.h"
 
 #include <iostream>
 
@@ -89,6 +90,10 @@ void CodeArea::addCodeWindow(Revision *r, QString fileText,
 
     //listen to zoom changes
     connect( this, SIGNAL(updateZoom(int)), edit, SLOT(onZoomChanged(int)) );
+
+    //listen to cursor status changes (MainWindow)
+    connect( edit, SIGNAL(cursorPositionChanged()),
+             parent(), SLOT(updateCursorStatus()) );
 
 }
 

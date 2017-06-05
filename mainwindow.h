@@ -6,6 +6,7 @@
 #include <QUdpSocket>
 #include <QMap>
 #include <QTreeWidget>
+#include <QLabel>
 #include "revision.h"
 #include "revui.h"
 #include "revtree.h"
@@ -27,6 +28,7 @@ public:
 
 public slots:
     void addRevisionMain(Revision *r);
+    void updateCursorStatus();
 
 private slots:
     void on_actionOpen_triggered();
@@ -47,6 +49,8 @@ private:
     //QWidget *shredTree;
     RevTree *shredTree;
     Engine *engine;
+
+    QLabel statusLineLabel;
 
     QString sessionName;
     QVariantMap macros;

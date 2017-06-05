@@ -11,6 +11,7 @@ CodeEdit::CodeEdit(QWidget *parent) :
 {
     QFont fixedFont("Courier", 10);
     setFont( fixedFont );
+
 }
 
 /*

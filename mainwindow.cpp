@@ -26,11 +26,19 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     codeArea( new CodeArea(this) ),
     engine( new Engine(this )),
+    statusLineLabel(this),
     seqRequest( 0 ), nBuffers( 0 ),
     langMode( chuckMode ),
     sessionDirCreated(false)
 {
     ui->setupUi(this);
+
+    //set text size of statusLineLabel
+    QFont serifFont("Times", 12, QFont::Bold);
+    statusLineLabel.setFont(serifFont);
+
+    // //add line info to statusBar
+    statusBar()->addWidget(&statusLineLabel);
 
     //check the mode that's active
     updateModeChecks();
@@ -65,6 +73,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //when revisions added to engine
     connect( engine, SIGNAL(revisionAdded(Revision*)),
              shredTree, SLOT(addRevision(Revision*)) );
+
 
     QDockWidget *dock = new QDockWidget();
     dock->setFeatures( QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetFloatable );
@@ -113,6 +122,20 @@ void MainWindow::createSessionDirectory()
 void MainWindow::addRevisionMain(Revision *r)
 {
     engine->addRevision(r);
+}
+
+//respond to change in cursor status
+void MainWindow::updateCursorStatus()
+{
+    //get the sending CodeEdit
+    CodeEdit *edit = (CodeEdit *) QObject::sender();
+    QTextCursor cursor = edit->textCursor();
+
+    //QString labelText = QString("%1: L%2c%3").arg(edit->rev->getShortName(), 0, 0);
+    QString labelText = QString("%1: L%2 c%3").arg(edit->rev->getShortName(),
+                                                  QString::number(cursor.blockNumber()+1),
+                                                  QString::number(cursor.positionInBlock()+1));
+    statusLineLabel.setText(labelText);
 }
 
 void MainWindow::on_actionOpen_triggered()

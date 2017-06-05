@@ -24,7 +24,7 @@ protected:
     void keyPressEvent ( QKeyEvent * e );
     
 signals:
-    
+
 public slots:
     void onTextChanged();
     void onZoomChanged(int fontSize);

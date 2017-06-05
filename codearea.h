@@ -29,7 +29,7 @@ signals:
     void notifyNewRevision(Revision *r);
     void selectedRevision(Revision *r);
     void updateZoom(int fontSize);
-    
+
 public slots:
     void selectRevision(Revision *r);
 
