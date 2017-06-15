@@ -5,6 +5,24 @@ ChuckHighlighter::ChuckHighlighter(QTextDocument *document):
 {
     HighlightingRule rule;
 
+    //darker colors for white BG
+    /*
+    QColor quoteColor = Qt::gray;
+    QColor kw1Color = Qt::darkBlue;
+    QColor kw2Color = Qt::darkGreen;
+    QColor kw3Color = Qt::darkCyan;
+    QColor kw4Color = Qt::darkMagenta;
+    QColor commentColor = QColor::fromHsv(120,255,200); */
+
+    //lighter colors for black BG
+    QColor quoteColor = Qt::gray;
+    //QColor kw1Color = Qt::blue;
+    QColor kw1Color = QColor::fromHsv(196,200,255);
+    QColor kw2Color = Qt::green;
+    QColor kw3Color = Qt::cyan;
+    QColor kw4Color = Qt::magenta;
+    QColor commentColor = QColor::fromHsv(120,255,230);
+
     //DO STRINGS HERE
     /* quotationFormat.setForeground(Qt::darkGreen);
     rule.pattern = QRegExp("\".*\"");
@@ -14,7 +32,7 @@ ChuckHighlighter::ChuckHighlighter(QTextDocument *document):
 
     //QRegExp("\".*\"");
     QTextCharFormat quotationFormat;
-    quotationFormat.setForeground(Qt::gray);
+    quotationFormat.setForeground(quoteColor);
     rule.pattern = QRegExp("\"(?:(?!\\/\\/).)+\"");
 
     rule.pattern.setMinimal(true);
@@ -28,7 +46,7 @@ ChuckHighlighter::ChuckHighlighter(QTextDocument *document):
     //DO KEYWORDS HERE
 
     QTextCharFormat kw1Format;
-    kw1Format.setForeground(Qt::darkBlue);
+    kw1Format.setForeground(kw1Color);
     kw1Format.setFontWeight(QFont::Bold);
 
     QString kw1 =
@@ -49,7 +67,7 @@ ChuckHighlighter::ChuckHighlighter(QTextDocument *document):
     QStringList kw2Patterns = kw2.split(",");
 
     QTextCharFormat kw2Format;
-    kw2Format.setForeground(Qt::darkGreen);
+    kw2Format.setForeground(kw2Color);
     kw2Format.setFontWeight(QFont::Bold);
 
     keywordPatternsFormat(kw2Patterns, kw2Format);
@@ -68,7 +86,7 @@ ChuckHighlighter::ChuckHighlighter(QTextDocument *document):
     QStringList kw3Patterns = kw3.split(",");
 
     QTextCharFormat kw3Format;
-    kw3Format.setForeground(Qt::darkCyan);
+    kw3Format.setForeground(kw3Color);
     kw3Format.setFontWeight(QFont::Bold);
 
     keywordPatternsFormat(kw3Patterns, kw3Format);
@@ -82,7 +100,7 @@ ChuckHighlighter::ChuckHighlighter(QTextDocument *document):
     QStringList kw5Patterns = scaleStr.split(",");
 
     QTextCharFormat kw4Format;
-    kw4Format.setForeground(Qt::darkMagenta);
+    kw4Format.setForeground(kw4Color);
     kw4Format.setFontWeight(QFont::Bold);
 
     keywordPatternsFormat(kw4Patterns, kw4Format);
@@ -92,7 +110,7 @@ ChuckHighlighter::ChuckHighlighter(QTextDocument *document):
 
     //single line comment rule
     QTextCharFormat singleLineCommentFormat;
-    singleLineCommentFormat.setForeground(QColor::fromHsv(120,255,200));
+    singleLineCommentFormat.setForeground(commentColor);
     rule.pattern = QRegExp("//[^\n]*");
     rule.format = singleLineCommentFormat;
     highlightingRules.append(rule);

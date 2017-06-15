@@ -4,6 +4,7 @@
 
 #include <QMdiSubWindow>
 #include <QMdiArea>
+#include <QPalette>
 #include "codearea.h"
 
 CodeEdit::CodeEdit(QWidget *parent) :
@@ -12,6 +13,12 @@ CodeEdit::CodeEdit(QWidget *parent) :
     QFont fixedFont("Courier", 10);
     setFont( fixedFont );
 
+    /*
+    QPalette palette;
+    palette.setColor(QPalette::Base,Qt::black);
+    palette.setColor(QPalette::Text,Qt::white);
+
+    setPalette(palette);*/
 }
 
 /*
